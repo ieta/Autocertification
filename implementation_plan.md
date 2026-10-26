@@ -315,6 +315,19 @@ flowchart TD
    * 상단 헤더에 `[발행 감사 이력]` 버튼 추가.
    * 최근 협력업체/작업자의 발행 일시, Lot No, 고객사, 작업 내역 실시간 테이블 조회 및 필요 시 `[전일 마감 리포트 메일 즉시 발송]` 수동 트리거 지원.
 
+---
+
+## [v5.0] 2026-10-26: 초경량 배포용 런처 실행 파일(CertificateAutomation.exe) 빌드 완료
+1. **초경량 부트스트랩 아키텍처 ([launcher.py](file:///d:/04.%20Antigravity/Certification_Automation%202/launcher.py))**:
+   * 무거운 외부 라이브러리를 .exe 내부에 구워 넣지 않고, 순수 표준 라이브러리만을 사용하여 실행 파일 크기를 **단 8.6MB**로 극소화.
+   * 첫 실행 시 PC에 격리된 `venv` 가상환경을 생성하고 [requirements.txt](file:///d:/04.%20Antigravity/Certification_Automation%202/requirements.txt) 라이브러리를 자동 다운로드/설치.
+   * 설치 완료 후 백엔드 Uvicorn 서버를 기동하고 기본 브라우저(`http://localhost:8000`)를 자동 팝업.
+   * 2회차 실행부터는 이미 설치된 가상환경을 재사용하여 **1초 만에 즉시 실행**.
+2. **배포 산출물**:
+   * [CertificateAutomation.exe](file:///d:/04.%20Antigravity/Certification_Automation%202/CertificateAutomation.exe) 및 `성적서_자동화_실행.exe` (약 8.6MB)
+   * [시작.bat](file:///d:/04.%20Antigravity/Certification_Automation%202/시작.bat) 원클릭 배치 파일 제공
+
+
 
 
 
