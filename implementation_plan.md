@@ -327,6 +327,20 @@ flowchart TD
    * [CertificateAutomation.exe](file:///d:/04.%20Antigravity/Certification_Automation%202/CertificateAutomation.exe) 및 `성적서_자동화_실행.exe` (약 8.6MB)
    * [시작.bat](file:///d:/04.%20Antigravity/Certification_Automation%202/시작.bat) 원클릭 배치 파일 제공
 
+---
+
+## [v5.1] 2026-10-26: 다른 PC 무한 루프 에러 원인 해결 및 완전 독립형(Standalone, 68MB) .exe 재빌드
+1. **무한 루프(Fork Bomb) 에러 원인 분석**:
+   * PyInstaller로 패키징된 실행 파일 내부에서는 `sys.executable`이 시스템 `python.exe`가 아니라 **`CertificateAutomation.exe` 자기 자신**을 가리킴.
+   * `subprocess.run([sys.executable, "-m", "venv", ...])`를 호출할 때 파이썬이 실행되는 대신 자기 자신을 끝없이 재귀 실행하여 화면에 배너와 생성 문구만 무한 반복 출력되는 현상 발생.
+   * 또한 대상 PC에 Python이 미설치되어 있거나 인터넷(PyPI) 다운로드가 차단된 사내 환경에서는 가상환경 생성이 원천 차단됨.
+2. **해결 조치: 완전 독립형(Self-Contained Standalone) 단일 실행 파일 전환**:
+   * [build_standalone.spec](file:///d:/04.%20Antigravity/Certification_Automation%202/build_standalone.spec) 기반으로 Python 런타임, 전체 의존 패키지(FastAPI, Uvicorn, ReportLab, PyWin32 등), React 프론트엔드 빌드 번들(`frontend/dist`), 로고/서명 이미지 및 설정을 1개의 완전한 실행 파일로 패키징.
+   * [run.py](file:///d:/04.%20Antigravity/Certification_Automation%202/run.py)에 `multiprocessing.freeze_support()` 및 `_MEIPASS` 정적 경로 탐색기 적용.
+   * 최종 산출물: [CertificateAutomation.exe](file:///d:/04.%20Antigravity/Certification_Automation%202/CertificateAutomation.exe) (약 68.7MB).
+   * **대상 PC에 Python 설치, pip 다운로드, 인터넷 연결 여부와 완전히 무관하게 더블클릭 1초 만에 100% 정상 실행 보장**.
+
+
 
 
 

@@ -1,4 +1,5 @@
 import os
+import sys
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -32,7 +33,22 @@ def health_check():
     return {"status": "ok", "service": "Silo Monitoring Backend"}
 
 # Frontend dist 정적 서빙 (빌드된 경우)
-frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "dist"))
+def get_frontend_dist():
+    # 1. PyInstaller _MEIPASS 내부 번들 경로
+    if hasattr(sys, '_MEIPASS'):
+        p = os.path.join(sys._MEIPASS, "frontend", "dist")
+        if os.path.exists(p):
+            return p
+    # 2. 실행파일과 같은 폴더에 있는 frontend/dist
+    if getattr(sys, 'frozen', False):
+        p = os.path.join(os.path.dirname(sys.executable), "frontend", "dist")
+        if os.path.exists(p):
+            return p
+    # 3. 소스코드 상대경로
+    p = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "dist"))
+    return p
+
+frontend_dist = get_frontend_dist()
 if os.path.exists(frontend_dist):
     app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist, "assets")), name="assets")
     
