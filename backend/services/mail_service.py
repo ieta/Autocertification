@@ -199,4 +199,127 @@ class MailService:
             logger.error(f"[MAIL-OUTLOOK-ERROR] Outlook 메일 발송 실패: {e}", exc_info=True)
             return False
 
+    def send_abnormal_alert_mail(
+        self,
+        lot_no: str,
+        customer_name: str,
+        failed_items: List[Dict[str, Any]],
+        reason: str = "규격 부적합(Spec Out)",
+        operator: str = "협력업체"
+    ) -> bool:
+        """
+        이상 징후/오발행 발생 시 담당자에게 즉시 긴급 알림 메일 발송
+        """
+        self._load_config()
+        if not self.mail_cfg.get("enabled", True):
+            return False
+
+        recipients = self.mail_cfg.get("recipients", [])
+        if not recipients:
+            return False
+
+        now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        subject = f"[긴급/오발행 주의] Silo 성적서 이상 발행 감지 - Lot {lot_no} ({customer_name})"
+
+        # 부적합 항목 테이블 생성
+        rows_html = []
+        for item in failed_items:
+            rows_html.append(f"""
+                <tr style="background-color: #fef2f2;">
+                    <td style="padding: 8px; border: 1px solid #fecaca; font-weight: bold; color: #991b1b;">{item.get('name')}</td>
+                    <td style="padding: 8px; border: 1px solid #fecaca; text-align: center; color: #dc2626; font-weight: bold; font-size: 14px;">{item.get('value')} {item.get('unit', '')}</td>
+                    <td style="padding: 8px; border: 1px solid #fecaca; text-align: center; color: #4b5563;">{item.get('spec')}</td>
+                    <td style="padding: 8px; border: 1px solid #fecaca; text-align: center; color: #b91c1c; font-weight: bold;">부적합 (FAIL)</td>
+                </tr>
+            """.strip())
+
+        html_body = f"""
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+</head>
+<body style="font-family: 'Malgun Gothic', '맑은 고딕', sans-serif; background-color: #f8fafc; padding: 20px; color: #1e293b;">
+    <div style="max-width: 680px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; border: 2px solid #ef4444; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <div style="background-color: #ef4444; padding: 16px 20px; color: #ffffff;">
+            <h2 style="margin: 0; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+                ⚠️ [오발행 긴급 알림] 성적서 이상 발행 감지
+            </h2>
+            <p style="margin: 6px 0 0 0; font-size: 13px; opacity: 0.95;">
+                협력업체에서 제품 규격(Spec)을 충족하지 못했거나 이상 징후가 있는 상태로 성적서를 발행했습니다.
+            </p>
+        </div>
+
+        <div style="padding: 20px;">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px;">
+                <tr>
+                    <td style="padding: 8px 12px; background: #f1f5f9; width: 120px; font-weight: bold; border: 1px solid #cbd5e1;">발생 일시</td>
+                    <td style="padding: 8px 12px; border: 1px solid #cbd5e1;">{now_str} (KST)</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 12px; background: #f1f5f9; font-weight: bold; border: 1px solid #cbd5e1;">대상 Lot No.</td>
+                    <td style="padding: 8px 12px; border: 1px solid #cbd5e1; font-weight: bold; color: #0284c7; font-size: 15px;">{lot_no}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 12px; background: #f1f5f9; font-weight: bold; border: 1px solid #cbd5e1;">출하 고객사</td>
+                    <td style="padding: 8px 12px; border: 1px solid #cbd5e1; font-weight: bold;">{customer_name}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 12px; background: #f1f5f9; font-weight: bold; border: 1px solid #cbd5e1;">발행 작업자</td>
+                    <td style="padding: 8px 12px; border: 1px solid #cbd5e1;">{operator}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 12px; background: #fef2f2; font-weight: bold; border: 1px solid #fecaca; color: #991b1b;">이상 감지 사유</td>
+                    <td style="padding: 8px 12px; border: 1px solid #fecaca; color: #dc2626; font-weight: bold;">{reason}</td>
+                </tr>
+            </table>
+
+            <h3 style="font-size: 14px; margin-bottom: 8px; color: #991b1b;">🚨 기준 미달(Spec Out) 항목 내역</h3>
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 20px;">
+                <thead>
+                    <tr style="background-color: #fee2e2; color: #7f1d1d;">
+                        <th style="padding: 8px; border: 1px solid #fecaca; text-align: left;">검사 항목</th>
+                        <th style="padding: 8px; border: 1px solid #fecaca; text-align: center;">분석 측정값</th>
+                        <th style="padding: 8px; border: 1px solid #fecaca; text-align: center;">기준 규격(Spec)</th>
+                        <th style="padding: 8px; border: 1px solid #fecaca; text-align: center;">판정</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {''.join(rows_html) if rows_html else '<tr><td colspan="4" style="padding: 8px; text-align: center;">상세 내역 없음</td></tr>'}
+                </tbody>
+            </table>
+
+            <div style="padding: 12px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; font-size: 12px; color: #92400e;">
+                <strong>⚠️ 담당자 조치 안내:</strong><br>
+                해당 Lot 성적서가 고객사/차량에 이미 전달되었는지 신속히 확인하시고, 필요 시 웹앱에서 올바른 Lot 성적서로 재발행 및 MIS 수치를 보정해 주시기 바랍니다.
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+        """
+
+        if sys.platform != "win32":
+            logger.info(f"[MAIL-MOCK] Non-Windows 이상 알림 Mocking: {subject} -> {recipients}")
+            return True
+
+        try:
+            import pythoncom
+            import win32com.client
+            pythoncom.CoInitialize()
+
+            outlook = win32com.client.Dispatch("Outlook.Application")
+            mail = outlook.CreateItem(0)
+            mail.To = "; ".join(recipients)
+            mail.Subject = subject
+            mail.HTMLBody = html_body
+            mail.Importance = 2  # olImportanceHigh (높은 중요도)
+
+            mail.Send()
+            logger.info(f"[MAIL-ALERT-SENT] 이상 징후 긴급 알림 메일 발송 완료: {lot_no} -> {recipients}")
+            return True
+        except Exception as e:
+            logger.error(f"[MAIL-ALERT-ERROR] 이상 알림 메일 발송 실패: {e}", exc_info=True)
+            return False
+
 mail_service = MailService()

@@ -40,13 +40,59 @@ def get_lot_pdf(
     customer_name: str = Query("표준(공용)", description="출하 고객사명"),
     product_name: str = Query("BISPHENOL-A", description="제품명"),
     issue_date: Optional[str] = Query(None, description="발행일자 (YYYY-MM-DD 또는 YYYY.MM.DD)"),
-    download: bool = Query(False, description="다운로드 첨부 파일 여부 (기본: 브라우저 뷰어 인라인)")
+    download: bool = Query(False, description="다운로드 첨부 파일 여부 (기본: 브라우저 뷰어 인라인)"),
+    force_issue: bool = Query(False, description="Spec 부적합 시 강제 발행 승인 플래그")
 ):
     """
     지정 Lot No.와 고객사에 맞는 공식 성적서 PDF를 생성하여 브라우저 뷰어 또는 파일 다운로드로 반환합니다.
-    (호출 시 자동으로 SQLite 감사 로그가 기록되며 당일 첫 발행 시 전일 메일링이 자동 트리거됩니다)
+    (방안 2: Spec Out 시 400 차단 및 방안 1: 강제 발행 시 담당자 긴급 메일 발송)
     """
     try:
+        # 1. Lot 분석 데이터 및 규격 판정 확인
+        points = gmail_service.fetch_latest_analysis_points()
+        history = pi_service.get_silo_import_history(days=30)
+        st_d, st_t, end_d, end_t = "", "00:00", "", "23:59"
+        for h in history:
+            if h.get("lot_no") == lot_no:
+                sp = h.get("start_time", "").split(" ")
+                st_d = sp[0] if len(sp) > 0 else ""
+                st_t = sp[1] if len(sp) > 1 else "00:00"
+                er = h.get("end_time", "")
+                if "진행" not in er and er:
+                    ep = er.split(" ")
+                    end_d = ep[0] if len(ep) > 0 else ""
+                    end_t = ep[1] if len(ep) > 1 else "23:59"
+                break
+
+        res = process_analyzer.calculate_lot_values(
+            lot_no=lot_no,
+            st_date=st_d or datetime.date.today().strftime("%Y-%m-%d"),
+            st_time=st_t,
+            end_date=end_d or datetime.date.today().strftime("%Y-%m-%d"),
+            end_time=end_t,
+            analysis_points=points
+        )
+
+        items = res.get("items", {})
+        failed_items = []
+        for name, eval_data in items.items():
+            if not eval_data.get("passed", True):
+                failed_items.append({
+                    "name": name,
+                    "value": eval_data.get("value"),
+                    "spec": eval_data.get("spec"),
+                    "unit": eval_data.get("unit", "")
+                })
+
+        # 2. 방안 2 (사전 검증 차단 인터락): 규격 부적합인데 force_issue=False인 경우 차단
+        if failed_items and not force_issue:
+            fail_names = ", ".join([f"{fi['name']} ({fi['value']})" for fi in failed_items])
+            raise HTTPException(
+                status_code=400,
+                detail=f"[발행 차단] Lot {lot_no} 품질 규격 미달 항목이 감지되었습니다: {fail_names}. 관리자 확인이 필요합니다."
+            )
+
+        # 3. PDF 생성
         pdf_bytes = report_generator.generate_pdf_bytes(
             lot_no=lot_no,
             customer_name=customer_name,
@@ -54,13 +100,28 @@ def get_lot_pdf(
             issue_date=issue_date
         )
 
-        # 감사 로그 기록 (당일 첫 발행 시 전일 리포트 자동 메일링 포함)
+        # 4. 방안 1 (이상 징후 즉시 메일 알림): 부적합 항목이 있는데 force_issue로 발행된 경우 즉시 알림 메일 발송
+        if failed_items and force_issue:
+            from backend.services.mail_service import mail_service
+            mail_service.send_abnormal_alert_mail(
+                lot_no=lot_no,
+                customer_name=customer_name,
+                failed_items=failed_items,
+                reason="규격 부적합(Spec Out) 상태에서 협력업체 강제 발행 승인됨",
+                operator="협력업체(경고확인 후 발행)"
+            )
+
+        # 감사 로그 기록 (당일 첫 발행 시 전일 메일링 포함)
         action_type = "DOWNLOAD" if download else "VIEW"
+        if failed_items:
+            action_type += "_ABNORMAL_FORCE"
+
         audit_service.log_issue_event(
             lot_no=lot_no,
             customer_name=customer_name,
             action=action_type,
-            operator="협력업체"
+            operator="협력업체",
+            details={"failed_items": failed_items, "is_forced": bool(failed_items)}
         )
 
         filename = f"{customer_name}_{lot_no}_성적서.pdf"
@@ -73,6 +134,8 @@ def get_lot_pdf(
         }
 
         return Response(content=pdf_bytes, media_type="application/pdf", headers=headers)
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"성적서 PDF 생성 오류: {str(e)}")
 

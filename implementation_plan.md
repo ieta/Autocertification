@@ -392,3 +392,30 @@ flowchart TD
 3. **빌드 및 배포**:
    - 프론트엔드 프로덕션 빌드(`npm run build`) 완료.
    - [build_standalone.spec](file:///d:/04.%20Antigravity/Certification_Automation%202/build_standalone.spec) 기반으로 단일 실행 파일 [CertificateAutomation.exe](file:///d:/04.%20Antigravity/Certification_Automation%202/CertificateAutomation.exe) 재패키징.
+
+
+---
+
+## [v5.4] 2026-10-26: 오발행 실시간 모니터링 및 선제적 방어 하이브리드 시스템 구축 (방안 1 + 2)
+1. **목적 및 요구사항**:
+   * 매 성적서 발행 시마다 무조건 메일을 보내는 비효율성을 제거.
+   * 협력업체의 오발행 발생 시 담당자가 즉시 감지하여 신속하게 수정 조치할 수 있는 실시간 모니터링 환경 구현.
+2. **구현 상세 (방안 1 + 방안 2 하이브리드)**:
+   * **1단계: 사전 검증 락 및 경고 인터락 (방안 2)**:
+     - [frontend/src/components/LotAnalysisModal.tsx](file:///d:/04.%20Antigravity/Certification_Automation%202/frontend/src/components/LotAnalysisModal.tsx):
+       * BPA 제품 규격(Purity, Ash, Color, Water 등) 미달 항목 발생 시 `[출력 락(Lock) 확인]` 및 `[규격 미달 (발행 제한)]` 상태로 발행 버튼 자동 잠금.
+       * 발행 시도 시 강력한 빨간색 **`성적서 발행 사전 차단 (Spec Out 경고)`** 인터락 모달 표출 (미달 항목 및 기준치 목록 명확히 제시).
+       * 협력업체의 단순 실수나 부주의에 의한 오발행을 1차적으로 원천 차단.
+   * **2단계: 이상 징후 감지 시 담당자 긴급 알림 메일 즉시 발송 (방안 1)**:
+     - [backend/services/mail_service.py](file:///d:/04.%20Antigravity/Certification_Automation%202/backend/services/mail_service.py): `send_abnormal_alert_mail` 함수 신설.
+       * 정상 발행 건은 메일을 전혀 보내지 않아 업무 피로도 제로 달성.
+       * 부적합/이상 항목이 존재함에도 협력업체가 확인 후 강제 발행을 진행한 경우, **즉시 담당자(`gihwan.kim@samyang.com`, `yeongeun.shin@samyang.com`) 메일로 높은 중요도(olImportanceHigh)의 `[긴급/오발행 주의] Silo 성적서 이상 발행 감지` 메일을 실시간 발송**.
+       * 메일 본문에 부적합 항목명, 분석 측정값, 기준 규격, 발행 작업자, 발생 일시를 HTML 붉은색 경고표로 시각화하여 즉시 전송.
+   * **3단계: 백엔드 API 방어 인터락 및 감사 기록**:
+     - [backend/routers/report_router.py](file:///d:/04.%20Antigravity/Certification_Automation%202/backend/routers/report_router.py):
+       * `GET /api/reports/lot/{lot_no}/pdf`에 `force_issue` 파라미터 적용.
+       * 부적합 항목이 있는데 `force_issue=False`인 직접 접근은 HTTP 400 에러로 원천 차단.
+       * 이상 발행 발생 시 `audit_logs` 테이블에 `ACTION = VIEW_ABNORMAL_FORCE`로 영구 기록.
+3. **독립형 실행 파일 패키징**:
+   - 프론트엔드 최적화 빌드(`npm run build`) 완료.
+   - 단일 실행 파일 [CertificateAutomation.exe](file:///d:/04.%20Antigravity/Certification_Automation%202/CertificateAutomation.exe) 재빌드 및 배포.

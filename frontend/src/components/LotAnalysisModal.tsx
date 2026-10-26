@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, CheckCircle2, XCircle, FileText, Download, Eye, Table as TableIcon, ExternalLink, Copy, Check } from 'lucide-react';
+import { X, CheckCircle2, XCircle, FileText, Download, Eye, Table as TableIcon, ExternalLink, Copy, Check, AlertTriangle, ShieldAlert } from 'lucide-react';
 
 interface ItemEval {
   value: string;
@@ -41,6 +41,8 @@ export const LotAnalysisModal: React.FC<Props> = ({
   const [selectedCustomer, setSelectedCustomer] = useState<string>('삼양화성');
   const [issueDate, setIssueDate] = useState<string>(new Date().toISOString().slice(0, 10));
   const [copied, setCopied] = useState<boolean>(false);
+  const [confirmForceModalOpen, setConfirmForceModalOpen] = useState<boolean>(false);
+  const [forceApproved, setForceApproved] = useState<boolean>(false);
 
   const handleCopyMisData = async () => {
     if (!data) return;
@@ -89,13 +91,36 @@ export const LotAnalysisModal: React.FC<Props> = ({
 
   if (!isOpen) return null;
 
+  const isSpecFailed = data ? !data.is_all_passed : false;
+  const isBlocked = isSpecFailed && !forceApproved;
+
   const pdfUrl = data
-    ? `/api/reports/lot/${data.lot_no}/pdf?customer_name=${encodeURIComponent(selectedCustomer)}&issue_date=${issueDate}`
+    ? `/api/reports/lot/${data.lot_no}/pdf?customer_name=${encodeURIComponent(selectedCustomer)}&issue_date=${issueDate}${forceApproved ? '&force_issue=true' : ''}`
     : '';
 
   const downloadUrl = data
-    ? `/api/reports/lot/${data.lot_no}/pdf?customer_name=${encodeURIComponent(selectedCustomer)}&issue_date=${issueDate}&download=true`
+    ? `/api/reports/lot/${data.lot_no}/pdf?customer_name=${encodeURIComponent(selectedCustomer)}&issue_date=${issueDate}&download=true${forceApproved ? '&force_issue=true' : ''}`
     : '';
+
+  const failedItemList = data
+    ? Object.entries(data.items).filter(([_, item]) => !item.passed)
+    : [];
+
+  const handleAttemptPrint = () => {
+    if (isBlocked) {
+      setConfirmForceModalOpen(true);
+      return;
+    }
+    window.open(pdfUrl, '_blank');
+  };
+
+  const handleAttemptDownload = (e: React.MouseEvent) => {
+    if (isBlocked) {
+      e.preventDefault();
+      setConfirmForceModalOpen(true);
+      return;
+    }
+  };
 
   return (
     <div style={{
@@ -389,26 +414,137 @@ export const LotAnalysisModal: React.FC<Props> = ({
 
                 <button
                   className="btn btn-secondary"
-                  onClick={() => window.open(pdfUrl, '_blank')}
-                  style={{ gap: '6px' }}
+                  onClick={handleAttemptPrint}
+                  style={{
+                    gap: '6px',
+                    borderColor: isBlocked ? 'rgba(239, 68, 68, 0.5)' : undefined,
+                    color: isBlocked ? '#F87171' : undefined
+                  }}
+                  title={isBlocked ? "규격 부적합 항목이 있어 발행이 잠겨 있습니다." : "새 창으로 열기 및 인쇄"}
                 >
-                  <ExternalLink size={15} />
-                  새 창으로 열기 / 인쇄
+                  {isBlocked ? <AlertTriangle size={15} /> : <ExternalLink size={15} />}
+                  {isBlocked ? '출력 락(Lock) 확인' : '새 창으로 열기 / 인쇄'}
                 </button>
                 <a
-                  href={downloadUrl}
-                  download={`${selectedCustomer}_${data.lot_no}_성적서.pdf`}
-                  className="btn btn-primary"
-                  style={{ gap: '6px', textDecoration: 'none' }}
+                  href={isBlocked ? '#' : downloadUrl}
+                  onClick={handleAttemptDownload}
+                  download={isBlocked ? undefined : `${selectedCustomer}_${data.lot_no}_성적서.pdf`}
+                  className={`btn ${isBlocked ? 'btn-secondary' : 'btn-primary'}`}
+                  style={{
+                    gap: '6px',
+                    textDecoration: 'none',
+                    background: isBlocked ? 'rgba(239, 68, 68, 0.15)' : undefined,
+                    borderColor: isBlocked ? '#EF4444' : undefined,
+                    color: isBlocked ? '#FCA5A5' : undefined
+                  }}
+                  title={isBlocked ? "규격 부적합 항목이 있어 다운로드가 잠겨 있습니다." : "성적서 PDF 파일 다운로드"}
                 >
                   <Download size={15} />
-                  성적서 PDF 다운로드
+                  {isBlocked ? '규격 미달 (발행 제한)' : '성적서 PDF 다운로드'}
                 </a>
               </div>
             </div>
           </div>
         )}
       </div>
+
+      {/* 방안 2: 사전 검증 경고 및 강제 발행 확인 모달 */}
+      {confirmForceModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.85)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1200,
+          padding: '20px'
+        }}>
+          <div className="glass-panel" style={{
+            maxWidth: '520px',
+            width: '100%',
+            background: '#1F2937',
+            borderRadius: '12px',
+            border: '2px solid #EF4444',
+            boxShadow: '0 20px 25px -5px rgba(239, 68, 68, 0.3)',
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              background: '#DC2626',
+              padding: '16px 20px',
+              color: '#FFFFFF',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px'
+            }}>
+              <ShieldAlert size={28} />
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 800 }}>
+                  성적서 발행 사전 차단 (Spec Out 경고)
+                </h3>
+                <p style={{ margin: '2px 0 0 0', fontSize: '0.8125rem', opacity: 0.9 }}>
+                  품질 규격 미달 항목이 감지되어 자동 발행이 인터락되었습니다.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ padding: '20px' }}>
+              <div style={{
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: '8px',
+                padding: '12px',
+                marginBottom: '16px'
+              }}>
+                <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#F87171', marginBottom: '8px' }}>
+                  미달 항목 내역 ({failedItemList.length}건):
+                </div>
+                <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.8125rem', color: '#E5E7EB' }}>
+                  {failedItemList.map(([name, item]) => (
+                    <li key={name} style={{ marginBottom: '4px' }}>
+                      <strong>{name}</strong>: 측정치 <span style={{ color: '#F87171', fontWeight: 700 }}>{item.value} {item.unit}</span> (기준 규격: {item.spec})
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <p style={{ fontSize: '0.8125rem', color: '#D1D5DB', lineHeight: 1.5, marginBottom: '20px' }}>
+                🚨 <strong>[오발행 주의 안내]</strong><br />
+                정상 범위를 벗어난 성적서가 고객사에 전달되지 않도록 출력이 제한되었습니다. 삼양 담당자의 사전 승인 하에 예외 발행을 진행하는 경우, <strong>즉시 담당자 메일로 [긴급 오발행 주의 알림]이 실시간 발송</strong>되며 발행 이력에 강제 발행 사유가 영구 기록됩니다.
+              </p>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setConfirmForceModalOpen(false)}
+                  style={{ fontSize: '0.8125rem' }}
+                >
+                  발행 취소 (돌아가기)
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => {
+                    setForceApproved(true);
+                    setConfirmForceModalOpen(false);
+                  }}
+                  style={{
+                    fontSize: '0.8125rem',
+                    background: '#DC2626',
+                    borderColor: '#B91C1C',
+                    fontWeight: 700
+                  }}
+                >
+                  사유 확인 후 강제 발행 (담당자 즉시 알림)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
