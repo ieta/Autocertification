@@ -242,6 +242,17 @@ flowchart TD
    * 상단 배너의 `O4 = 7.0` (엑셀 SUM(HV)/2 계산 셀 참조값) 배지 완전 제거
    * 공정 상태 표기를 `FEED (공급 중)` / `STOP (공급 중단)`으로 단순화
 
+---
+
+## [v2.5] 2026-10-26: GitHub 원격 저장소 연동 및 최초 코드 푸시 완료
+* **저장소 URL**: [https://github.com/ieta/Autocertification](https://github.com/ieta/Autocertification)
+* **작업 내역**:
+  * Git 저장소 초기화 (`main` 브랜치)
+  * [.gitignore](file:///d:/04.%20Antigravity/Certification_Automation%202/.gitignore), [requirements.txt](file:///d:/04.%20Antigravity/Certification_Automation%202/requirements.txt), [README.md](file:///d:/04.%20Antigravity/Certification_Automation%202/README.md) 작성
+  * 백엔드(FastAPI), 프론트엔드(React + TypeScript), 원클릭 실행기(`run.py`, `start_app.bat`), 구현 계획서 커밋
+  * `origin/main` 브랜치로 최초 푸시(`git push -u origin main`) 완료
+
+
 
 
 
