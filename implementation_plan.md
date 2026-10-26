@@ -252,6 +252,21 @@ flowchart TD
   * 백엔드(FastAPI), 프론트엔드(React + TypeScript), 원클릭 실행기(`run.py`, `start_app.bat`), 구현 계획서 커밋
   * `origin/main` 브랜치로 최초 푸시(`git push -u origin main`) 완료
 
+---
+
+## [v3.0] 2026-10-26: Gmail 공정분석 시계열 파싱 및 Lot별 성적서 품질 데이터 집계 연동
+1. **기존 프로젝트 핵심 모듈 이식 및 현대화**:
+   * [backend/services/process_analyzer.py](file:///d:/04.%20Antigravity/Certification_Automation%202/backend/services/process_analyzer.py): '공정분석 내역 조회' 메일 HTML 시계열 테이블 파싱, 수입 구간(`ST ~ END`) 매칭, 순도/페놀/2,4-BPA/Melt Color 평균 계산 및 11개 전 시험항목 규격 스펙 대조/합부(PASS) 판정기 구현
+   * [backend/services/gmail_service.py](file:///d:/04.%20Antigravity/Certification_Automation%202/backend/services/gmail_service.py): Google OAuth 2.0 Gmail API 연동 및 오프라인/만료 대비 캐시 데이터 자동 폴백 지원
+   * [backend/config/specs.json](file:///d:/04.%20Antigravity/Certification_Automation%202/backend/config/specs.json): BPA 품질 규격 DB 탑재
+   * [scripts/authenticate_gmail.py](file:///d:/04.%20Antigravity/Certification_Automation%202/scripts/authenticate_gmail.py): 만료 시 1회성 구글 로그인 갱신 스크립트 제공
+2. **신규 REST 엔드포인트 구축**:
+   * [backend/routers/analysis_router.py](file:///d:/04.%20Antigravity/Certification_Automation%202/backend/routers/analysis_router.py): `GET /api/analysis/lot/{lot_no}` (특정 Lot 품질분석 결과 및 규격 판정표 즉시 반환)
+3. **프론트엔드 실시간 품질 분석 모달 연동**:
+   * [frontend/src/components/LotAnalysisModal.tsx](file:///d:/04.%20Antigravity/Certification_Automation%202/frontend/src/components/LotAnalysisModal.tsx): 수입 세션 테이블에서 [성적서 발행] 클릭 시 11개 분석 시험 항목, 실측치, 단위, 규격 기준, 합격(PASS) 배지가 즉시 팝업으로 표출
+   * 프론트엔드 재빌드 완료 (`frontend/dist`)
+
+
 
 
 

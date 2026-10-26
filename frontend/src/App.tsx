@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { SiloCard } from './components/SiloCard';
 import { SessionHistoryTable, type ImportSession } from './components/SessionHistoryTable';
 import { TagMonitorModal } from './components/TagMonitorModal';
+import { LotAnalysisModal, type LotAnalysisData } from './components/LotAnalysisModal';
 import {
   Activity,
   RefreshCw,
@@ -33,6 +34,32 @@ export function App() {
   const [autoRefresh, setAutoRefresh] = useState<boolean>(true);
   const [isTagModalOpen, setIsTagModalOpen] = useState<boolean>(false);
   const [lastUpdated, setLastUpdated] = useState<string>('');
+
+  // Lot Analysis Modal State
+  const [selectedLotData, setSelectedLotData] = useState<LotAnalysisData | null>(null);
+  const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState<boolean>(false);
+  const [analysisLoading, setAnalysisLoading] = useState<boolean>(false);
+
+  const handleOpenLotAnalysis = async (sess: ImportSession) => {
+    setIsAnalysisModalOpen(true);
+    setAnalysisLoading(true);
+    try {
+      const res = await fetch(`/api/analysis/lot/${sess.lot_no}`);
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedLotData(data);
+      } else {
+        alert(`Lot ${sess.lot_no} 분석 데이터 집계 실패: ${res.statusText}`);
+        setIsAnalysisModalOpen(false);
+      }
+    } catch (e) {
+      console.error('Failed to load lot analysis:', e);
+      alert('분석 데이터 집계 중 오류가 발생했습니다.');
+      setIsAnalysisModalOpen(false);
+    } finally {
+      setAnalysisLoading(false);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -265,9 +292,7 @@ export function App() {
       {/* 4. Session History Table */}
       <SessionHistoryTable
         sessions={history}
-        onSelectSession={(sess) => {
-          alert(`성적서 발행 연동 준비\n\n대상 Silo: Silo ${sess.silo}\nLot No: ${sess.lot_no}\n수입 구간: ${sess.start_time} ~ ${sess.end_time}\n\n다음 단계인 성적서 템플릿(Word/PDF) 치환 모듈로 바로 연동됩니다.`);
-        }}
+        onSelectSession={handleOpenLotAnalysis}
       />
 
       {/* 5. Tag Monitor Modal */}
@@ -278,6 +303,14 @@ export function App() {
         valveSumO4={status?.valve_sum_o4 || 0}
         feedStatus={status?.status_text || 'Stop'}
         incomingSilo={status?.incoming_silo || null}
+      />
+
+      {/* 6. Lot Quality Analysis Modal */}
+      <LotAnalysisModal
+        isOpen={isAnalysisModalOpen}
+        onClose={() => setIsAnalysisModalOpen(false)}
+        data={selectedLotData}
+        loading={analysisLoading}
       />
 
       {/* Footer */}

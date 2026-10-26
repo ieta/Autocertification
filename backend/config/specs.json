@@ -1,0 +1,44 @@
+{
+  "ISB_Flake": {
+    "product": "ISB",
+    "form_type": "Flake",
+    "specs": {
+      "Appearance": { "type": "text", "expected": ["White Solid", "White Flake", "백색 고체"] },
+      "Purity (by GC)": { "type": "numeric", "min": 99.5, "unit": "%" },
+      "Water contents (by KF)": { "type": "numeric", "max": 0.3, "unit": "%" },
+      "pH": { "type": "numeric", "min": 6.0, "max": 8.0, "unit": "" },
+      "UV Transmittance - at 275nm": { "type": "numeric", "min": 85.0, "unit": "%" },
+      "UV Transmittance - at 350nm": { "type": "numeric", "min": 95.0, "unit": "%" },
+      "Formic Acid (by HPLC)": { "type": "numeric", "max": 10.0, "unit": "ppm" },
+      "Ion Contents (by IC) - Anion": { "type": "numeric", "max": 1.0, "unit": "ppm" },
+      "Ion Contents (by IC) - Cation": { "type": "numeric", "max": 1.0, "unit": "ppm" }
+    }
+  },
+  "ISB_Liquid": {
+    "product": "ISB",
+    "form_type": "Liquid",
+    "specs": {
+      "Appearance": { "type": "text", "expected": ["Clear Liquid", "투명 액상"] },
+      "Purity (by GC)": { "type": "numeric", "min": 99.0, "unit": "%" },
+      "Water contents (by KF)": { "type": "numeric", "max": 0.5, "unit": "%" },
+      "pH": { "type": "numeric", "min": 6.0, "max": 8.0, "unit": "" }
+    }
+  },
+  "BPA": {
+    "product": "BPA",
+    "form_type": "Prill",
+    "specs": {
+      "Appearance": { "type": "text", "expected": ["White Prill", "White Prills", "백색 Prill", "White Pellets"] },
+      "Melt Color (at 175°C, 0.5hr)": { "type": "numeric", "max": 20.0, "unit": "Pt-Co" },
+      "Solution Color (Alcohol)": { "type": "numeric", "max": 10.0, "unit": "Pt-Co" },
+      "Solution Color (Alkali)": { "type": "numeric", "max": 20.0, "unit": "Pt-Co" },
+      "BPA Purity (dry)": { "type": "numeric", "min": 99.85, "unit": "wt%" },
+      "Phenol": { "type": "numeric", "max": 100.0, "unit": "wtppm" },
+      "2,4'-BPA": { "type": "numeric", "max": 500.0, "unit": "wtppm" },
+      "Water": { "type": "numeric", "max": 0.1, "unit": "wt%" },
+      "Freezing Point": { "type": "numeric", "min": 156.5, "unit": "℃" },
+      "Iron": { "type": "numeric", "max": 0.1, "unit": "wtppm" },
+      "Ash": { "type": "numeric", "max": 20.0, "unit": "wtppm" }
+    }
+  }
+}
