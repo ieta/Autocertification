@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, CheckCircle2, XCircle, FileText, Download, Eye, Table as TableIcon, ExternalLink } from 'lucide-react';
+import { X, CheckCircle2, XCircle, FileText, Download, Eye, Table as TableIcon, ExternalLink, Copy, Check } from 'lucide-react';
 
 interface ItemEval {
   value: string;
@@ -40,6 +40,36 @@ export const LotAnalysisModal: React.FC<Props> = ({
   const [customers, setCustomers] = useState<CustomerOption[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<string>('삼양화성');
   const [issueDate, setIssueDate] = useState<string>(new Date().toISOString().slice(0, 10));
+  const [copied, setCopied] = useState<boolean>(false);
+
+  const handleCopyMisData = async () => {
+    if (!data) return;
+    try {
+      // 11개 표준 항목 순서
+      const targetColumns = [
+        "Appearance", "Freezing Point", "Melt Color", "Solution Color (Alcohol)",
+        "Solution Color (Alkali)", "BPA Purity (dry)", "Phenol", "2,4'-BPA",
+        "Water", "Iron", "Ash"
+      ];
+      const vals = targetColumns.map(col => {
+        for (const [k, v] of Object.entries(data.items)) {
+          if (k.toLowerCase().includes(col.toLowerCase()) || col.toLowerCase().includes(k.toLowerCase())) {
+            return v.value;
+          }
+        }
+        return '-';
+      });
+
+      // 탭 구분자 TSV (엑셀 및 사내 MIS 1행 복사용)
+      const tsvText = vals.join('\t');
+      await navigator.clipboard.writeText(tsvText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+    } catch (e) {
+      console.error('Failed to copy MIS data:', e);
+      alert('클립보드 복사 중 오류가 발생했습니다.');
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -340,7 +370,23 @@ export const LotAnalysisModal: React.FC<Props> = ({
               <div style={{ fontSize: '0.8125rem', color: '#9CA3AF' }}>
                 선택된 서식: <strong>{selectedCustomer}</strong> ({customers.find(c => c.customer === selectedCustomer)?.template_name || '기본 서식'})
               </div>
-              <div style={{ display: 'flex', gap: '10px' }}>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <button
+                  className="btn btn-secondary"
+                  onClick={handleCopyMisData}
+                  style={{
+                    gap: '6px',
+                    background: copied ? 'rgba(16, 185, 129, 0.2)' : 'rgba(55, 65, 81, 0.6)',
+                    borderColor: copied ? '#10B981' : '#4B5563',
+                    color: copied ? '#34D399' : '#F3F4F6',
+                    transition: 'all 0.2s ease'
+                  }}
+                  title="MIS 전산 또는 엑셀에 Ctrl+V로 즉시 붙여넣을 수 있는 11개 분석 수치를 복사합니다."
+                >
+                  {copied ? <Check size={15} /> : <Copy size={15} />}
+                  {copied ? 'MIS 수치 복사 완료!' : 'MIS 데이터 복사 (Excel용)'}
+                </button>
+
                 <button
                   className="btn btn-secondary"
                   onClick={() => window.open(pdfUrl, '_blank')}

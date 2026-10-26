@@ -3,11 +3,13 @@ import { SiloCard } from './components/SiloCard';
 import { SessionHistoryTable, type ImportSession } from './components/SessionHistoryTable';
 import { TagMonitorModal } from './components/TagMonitorModal';
 import { LotAnalysisModal, type LotAnalysisData } from './components/LotAnalysisModal';
+import { AuditLogModal } from './components/AuditLogModal';
 import {
   Activity,
   RefreshCw,
   Layers,
-  ShieldCheck
+  ShieldCheck,
+  FileCheck
 } from 'lucide-react';
 
 interface SiloStatus {
@@ -33,6 +35,7 @@ export function App() {
   const [loading, setLoading] = useState<boolean>(true);
   const [autoRefresh, setAutoRefresh] = useState<boolean>(true);
   const [isTagModalOpen, setIsTagModalOpen] = useState<boolean>(false);
+  const [isAuditModalOpen, setIsAuditModalOpen] = useState<boolean>(false);
   const [lastUpdated, setLastUpdated] = useState<string>('');
 
   // Lot Analysis Modal State
@@ -149,6 +152,17 @@ export function App() {
           >
             <Activity size={15} style={{ color: '#60A5FA' }} />
             DCS 태그 모니터
+          </button>
+
+          {/* Audit Log Modal Toggle */}
+          <button
+            className="btn btn-secondary"
+            onClick={() => setIsAuditModalOpen(true)}
+            style={{ fontSize: '0.8125rem', gap: '6px' }}
+            title="협력업체 성적서 발행 이력 및 전일 리포트 메일링 상태 확인"
+          >
+            <FileCheck size={15} style={{ color: '#34D399' }} />
+            발행 감사 이력
           </button>
 
           {/* Auto Refresh Toggle */}
@@ -311,6 +325,12 @@ export function App() {
         onClose={() => setIsAnalysisModalOpen(false)}
         data={selectedLotData}
         loading={analysisLoading}
+      />
+
+      {/* 7. Audit Log Modal */}
+      <AuditLogModal
+        isOpen={isAuditModalOpen}
+        onClose={() => setIsAuditModalOpen(false)}
       />
 
       {/* Footer */}

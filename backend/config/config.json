@@ -1,0 +1,9 @@
+{
+  "mail_notification": {
+    "enabled": true,
+    "recipients": [
+      "gihwan.kim@samyang.com",
+      "yeongeun.shin@samyang.com"
+    ]
+  }
+}

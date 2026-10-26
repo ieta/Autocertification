@@ -302,6 +302,20 @@ flowchart TD
    * 내장 iframe PDF 뷰어 탑재: 오즈 레포트 뷰어와 동일하게 브라우저 내에서 즉시 확대/축소, 인쇄, 페이지 넘김 가능.
    * 상단/하단 원클릭 `[새 창으로 열기 / 인쇄]`, `[성적서 PDF 다운로드]` 버튼 제공.
 
+---
+
+## [v4.1] 2026-10-26: 당일 첫 발행 시 전일 이력 자동 메일링 스케줄러 & MIS 전산 데이터 원클릭 복사
+1. **웹앱 내장 이벤트 기반 일일 마감 메일링 ([backend/services/audit_service.py](file:///d:/04.%20Antigravity/Certification_Automation%202/backend/services/audit_service.py), [backend/services/mail_service.py](file:///d:/04.%20Antigravity/Certification_Automation%202/backend/services/mail_service.py))**:
+   * OS 스케줄러 불필요: 당일 첫 번째 성적서 발행 시 전날(`yesterday`)의 성적서 발행 이력(누락 점검용)과 해당 Lot들의 MIS 등록용 11개 분석 수치 종합표를 취합하여 담당자 수신처(`recipients`)로 자동 발송.
+   * 중복 발송 방지: SQLite `system_state` 테이블의 `last_daily_mail_date`를 당일 일자로 마킹하여 1일 1회만 정확히 발송.
+2. **MIS 전산 데이터 원클릭 클립보드 복사 ([LotAnalysisModal.tsx](file:///d:/04.%20Antigravity/Certification_Automation%202/frontend/src/components/LotAnalysisModal.tsx))**:
+   * 모달 내 `[MIS 데이터 복사 (Excel용)]` 버튼 추가.
+   * 클릭 시 11개 표준 시험 항목 실측치가 탭(`\t`) 구분자로 클립보드에 즉시 저장되어 사내 MIS 시스템이나 엑셀에 `Ctrl + V` 한 번으로 무오류 고속 등록 가능.
+3. **발행 감사 로그 모달 UI ([AuditLogModal.tsx](file:///d:/04.%20Antigravity/Certification_Automation%202/frontend/src/components/AuditLogModal.tsx))**:
+   * 상단 헤더에 `[발행 감사 이력]` 버튼 추가.
+   * 최근 협력업체/작업자의 발행 일시, Lot No, 고객사, 작업 내역 실시간 테이블 조회 및 필요 시 `[전일 마감 리포트 메일 즉시 발송]` 수동 트리거 지원.
+
+
 
 
 
