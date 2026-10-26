@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Query
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from backend.services.gmail_service import gmail_service
 from backend.services.process_analyzer import process_analyzer
 from backend.services.pi_service import pi_service
