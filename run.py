@@ -11,7 +11,10 @@ def open_browser():
     url = "http://127.0.0.1:8000"
     print(f"\n[SYSTEM] 브라우저를 자동 실행합니다: {url}")
     try:
-        webbrowser.open(url)
+        if sys.platform == "win32":
+            os.system(f'start "" "{url}"')
+        else:
+            webbrowser.open(url)
     except Exception as e:
         print(f"[!] 브라우저 자동 오픈 실패: {e}")
 
