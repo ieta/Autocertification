@@ -370,3 +370,25 @@ flowchart TD
 
 
 
+
+
+---
+
+## [v5.3] 2026-10-26: 과거 Lot 이력 및 MIS 데이터 검색/조회 전용 모달 구축 (주말/경과 후 대응)
+1. **배경 및 요구사항**:
+   * 메인 화면은 Silo A/B/C별 1개 최신 Lot(총 3개)로 고정되어 있어 현장 성적서 출력 시 혼선이 없으나, 주말이나 연휴가 지나 여러 Lot가 이미 출하/소진된 후에는 담당자가 MIS 입력용 과거 Lot 데이터를 확인할 수 없는 문제 발생.
+2. **구현 내용**:
+   * **백엔드 API 확장**:
+     - [backend/routers/silo_router.py](file:///d:/04.%20Antigravity/Certification_Automation%202/backend/routers/silo_router.py): `GET /api/silos/history`의 기본 조회 기간을 30일(`days=30`), 최대 50건(`limit=50`)으로 확장하여 한 달 치 전체 수입 세션을 제공.
+   * **과거 Lot 검색 및 MIS 복사 전용 모달 컴포넌트 신설**:
+     - [frontend/src/components/LotHistorySearchModal.tsx](file:///d:/04.%20Antigravity/Certification_Automation%202/frontend/src/components/LotHistorySearchModal.tsx) 신규 개발:
+       * **실시간 Lot 검색**: Lot 번호(`26AJ24`, `26BJ25` 등) 즉시 필터링 지원.
+       * **Silo 필터**: 전체 Silo, Silo A, Silo B, Silo C 탭 필터링.
+       * **원클릭 MIS 복사 (`[MIS 복사]`)**: 상세 모달을 열지 않고도 해당 행에서 직접 11개 품질분석 수치를 탭(`\t`) 구분 텍스트로 클립보드에 복사(Excel Ctrl+V 즉시 가능).
+       * **성적서 / 상세 분석 연동 (`[성적서 조회]`)**: 클릭 시 기존 품질 분석 모달 및 PDF 성적서 뷰어로 직결.
+   * **메인 대시보드 UI 연동**:
+     - [frontend/src/App.tsx](file:///d:/04.%20Antigravity/Certification_Automation%202/frontend/src/App.tsx): 상단 네비게이션에 `[과거 Lot / MIS 이력]` 버튼 추가.
+     - [frontend/src/components/SessionHistoryTable.tsx](file:///d:/04.%20Antigravity/Certification_Automation%202/frontend/src/components/SessionHistoryTable.tsx): 테이블 헤더 우측에 `[과거 Lot 전체 조회]` 바로가기 버튼 추가.
+3. **빌드 및 배포**:
+   - 프론트엔드 프로덕션 빌드(`npm run build`) 완료.
+   - [build_standalone.spec](file:///d:/04.%20Antigravity/Certification_Automation%202/build_standalone.spec) 기반으로 단일 실행 파일 [CertificateAutomation.exe](file:///d:/04.%20Antigravity/Certification_Automation%202/CertificateAutomation.exe) 재패키징.

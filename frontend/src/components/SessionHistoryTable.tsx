@@ -13,9 +13,10 @@ export interface ImportSession {
 interface Props {
   sessions: ImportSession[];
   onSelectSession?: (session: ImportSession) => void;
+  onOpenHistorySearch?: () => void;
 }
 
-export const SessionHistoryTable: React.FC<Props> = ({ sessions, onSelectSession }) => {
+export const SessionHistoryTable: React.FC<Props> = ({ sessions, onSelectSession, onOpenHistorySearch }) => {
   return (
     <div className="glass-panel" style={{ padding: '24px', marginTop: '24px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
@@ -42,9 +43,21 @@ export const SessionHistoryTable: React.FC<Props> = ({ sessions, onSelectSession
           </div>
         </div>
 
-        <span className="badge badge-primary">
-          Silo A · B · C (3기)
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {onOpenHistorySearch && (
+            <button
+              onClick={onOpenHistorySearch}
+              className="btn btn-secondary"
+              style={{ fontSize: '0.8125rem', padding: '6px 12px', gap: '6px' }}
+            >
+              <History size={14} style={{ color: '#60A5FA' }} />
+              과거 Lot 전체 조회
+            </button>
+          )}
+          <span className="badge badge-primary">
+            Silo A · B · C (3기)
+          </span>
+        </div>
       </div>
 
       {/* 안내 팁 박스 */}

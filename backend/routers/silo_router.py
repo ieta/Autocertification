@@ -52,8 +52,8 @@ def get_latest_by_silo() -> List[Dict[str, Any]]:
 
 @router.get("/history")
 def get_silo_history(
-    days: int = Query(default=14, ge=1, le=90),
-    limit: int = Query(default=5, ge=1, le=50)
+    days: int = Query(default=30, ge=1, le=90),
+    limit: int = Query(default=50, ge=1, le=100)
 ) -> List[Dict[str, Any]]:
     """과거 수입 세션 이력 (구간 ST~END 및 Lot No.) 최근 N개 반환"""
     try:

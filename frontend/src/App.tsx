@@ -4,12 +4,14 @@ import { SessionHistoryTable, type ImportSession } from './components/SessionHis
 import { TagMonitorModal } from './components/TagMonitorModal';
 import { LotAnalysisModal, type LotAnalysisData } from './components/LotAnalysisModal';
 import { AuditLogModal } from './components/AuditLogModal';
+import { LotHistorySearchModal } from './components/LotHistorySearchModal';
 import {
   Activity,
   RefreshCw,
   Layers,
   ShieldCheck,
-  FileCheck
+  FileCheck,
+  Calendar
 } from 'lucide-react';
 
 interface SiloStatus {
@@ -36,6 +38,7 @@ export function App() {
   const [autoRefresh, setAutoRefresh] = useState<boolean>(true);
   const [isTagModalOpen, setIsTagModalOpen] = useState<boolean>(false);
   const [isAuditModalOpen, setIsAuditModalOpen] = useState<boolean>(false);
+  const [isHistorySearchModalOpen, setIsHistorySearchModalOpen] = useState<boolean>(false);
   const [lastUpdated, setLastUpdated] = useState<string>('');
 
   // Lot Analysis Modal State
@@ -152,6 +155,17 @@ export function App() {
           >
             <Activity size={15} style={{ color: '#60A5FA' }} />
             DCS 태그 모니터
+          </button>
+
+          {/* Past Lot History Search Modal Toggle */}
+          <button
+            className="btn btn-secondary"
+            onClick={() => setIsHistorySearchModalOpen(true)}
+            style={{ fontSize: '0.8125rem', gap: '6px' }}
+            title="주말/과거 30일간 완료된 모든 Lot 번호 검색 및 MIS 데이터 복사"
+          >
+            <Calendar size={15} style={{ color: '#60A5FA' }} />
+            과거 Lot / MIS 이력
           </button>
 
           {/* Audit Log Modal Toggle */}
@@ -307,6 +321,7 @@ export function App() {
       <SessionHistoryTable
         sessions={history}
         onSelectSession={handleOpenLotAnalysis}
+        onOpenHistorySearch={() => setIsHistorySearchModalOpen(true)}
       />
 
       {/* 5. Tag Monitor Modal */}
@@ -331,6 +346,16 @@ export function App() {
       <AuditLogModal
         isOpen={isAuditModalOpen}
         onClose={() => setIsAuditModalOpen(false)}
+      />
+
+      {/* 8. Past Lot History Search Modal */}
+      <LotHistorySearchModal
+        isOpen={isHistorySearchModalOpen}
+        onClose={() => setIsHistorySearchModalOpen(false)}
+        onSelectLot={(sess) => {
+          setIsHistorySearchModalOpen(false);
+          handleOpenLotAnalysis(sess);
+        }}
       />
 
       {/* Footer */}
