@@ -266,6 +266,18 @@ flowchart TD
    * [frontend/src/components/LotAnalysisModal.tsx](file:///d:/04.%20Antigravity/Certification_Automation%202/frontend/src/components/LotAnalysisModal.tsx): 수입 세션 테이블에서 [성적서 발행] 클릭 시 11개 분석 시험 항목, 실측치, 단위, 규격 기준, 합격(PASS) 배지가 즉시 팝업으로 표출
    * 프론트엔드 재빌드 완료 (`frontend/dist`)
 
+---
+
+## [v3.1] 2026-10-26: 수입 진행 중 Lot 집계 대기 처리 및 기 수입 완료 Lot(26BJ25 등) 분석 조회 UI 고도화
+1. **수입 진행 중 Lot에 대한 처리 분기**:
+   * 현재 피드 진행 중인 Lot(`26CJ26`, `is_active: true`)은 데이터 집계가 미완료된 상태이므로 성적서 발행 버튼 대신 `[수입 진행 중 (집계 대기)]` 비활성화 배지로 잠금 처리.
+2. **기 수입 완료 Lot 분석 조회 접근성 개선**:
+   * 수입이 완료된 이전 세션들(`26BJ25`, `26AJ24`, `26BJ23`, `26AJ22`)에 대해 눈에 띄는 `[성적서 / 분석 조회]` 버튼 배치.
+   * 테이블 상단에 직관적인 안내 팁 박스(💡)를 배치하여 사용자가 즉시 완료된 Lot의 분석 데이터를 열람할 수 있도록 개선.
+   * `26BJ25` 분석 데이터 정상 호출 및 10개 매칭 샘플 기준 11개 전 항목 PASS 확인.
+3. **GitHub 원격 저장소 동기화**:
+   * 커밋(`75c9f08`) 및 `origin/main` 푸시 완료.
+
 
 
 
