@@ -278,6 +278,30 @@ flowchart TD
 3. **GitHub 원격 저장소 동기화**:
    * 커밋(`75c9f08`) 및 `origin/main` 푸시 완료.
 
+---
+
+## [v4.0] 2026-10-26: 고품질 성적서 PDF 생성 엔진 탑재 및 오즈 레포트 형식 웹 뷰어 연동
+1. **아키텍처 혁신 (Word COM 의존성 탈피)**:
+   * MS Word COM(Word 프로그램 실행) 방식의 불안정성(프로세스 멈춤, 계정 권한, DRM 잠김)을 원천 차단하기 위해 순수 고속 PDF 엔진인 **ReportLab 5.0** 기반 리포트 생성기([backend/services/report_generator.py](file:///d:/04.%20Antigravity/Certification_Automation%202/backend/services/report_generator.py)) 구축.
+   * 0.05초 만에 고해상도 A4 규격 공식 성적서 PDF를 바이너리 스트림으로 직접 생성.
+2. **기존 프로젝트 서식 파싱 및 고객사별 규격 자동 분기**:
+   * **상단 헤더**: 회사 공식 블루 로고(`SAMYANG_INNOCHEM_LOGOTYPE_PRIMARY_VERSION_RGB_BLUE.jpg`) + 군산 공장 주소 및 연락처.
+   * **기본 정보 표**: 제품명(`BISPHENOL-A`), 출하선(고객사명), Lot No., 시험일자.
+   * **분석 항목 표**:
+     - **공용(표준)**: 10개 항목 (Appearance, Freezing Point, Melt Color, Solution Color Alcohol, Purity, Phenol, 2,4'-BPA, Water, Iron, Ash).
+     - **국도화학 전용**: + Solution Color (Alkali) 항목 자동 추가.
+     - **삼양화성 전용**: Prill Size 5개 입도 규격 표기 (실측치 부재 시 원본 서식과 동일하게 공란 유지).
+   * **보증 문구**: "위  제 품  성 적 서 의  결 과 에  대 하 여  보 증 합 니 다."
+   * **하단 서명부**: 팀장님 친필 서명(`팀장님 서명.jpg`) 이미지 삽입, 밑줄선, 발행처 영문 직책/이름 블록.
+3. **REST 엔드포인트 구축 ([backend/routers/report_router.py](file:///d:/04.%20Antigravity/Certification_Automation%202/backend/routers/report_router.py))**:
+   * `GET /api/reports/customers`: 고객사 목록 반환.
+   * `GET /api/reports/lot/{lot_no}/pdf`: 브라우저 뷰어용 인라인 스트림 또는 즉시 파일 다운로드(`download=true`) 지원.
+4. **오즈 레포트 뷰어 형식의 프론트엔드 모달 UI ([LotAnalysisModal.tsx](file:///d:/04.%20Antigravity/Certification_Automation%202/frontend/src/components/LotAnalysisModal.tsx))**:
+   * 탭 전환: `[품질 규격 분석표]` vs `[공식 성적서 뷰어 (PDF)]`.
+   * 고객사 선택 드롭다운: 삼양화성, 국도화학, 롯데케미칼, 아이씨케미칼 등 변경 시 실시간으로 서식이 전환 렌더링.
+   * 내장 iframe PDF 뷰어 탑재: 오즈 레포트 뷰어와 동일하게 브라우저 내에서 즉시 확대/축소, 인쇄, 페이지 넘김 가능.
+   * 상단/하단 원클릭 `[새 창으로 열기 / 인쇄]`, `[성적서 PDF 다운로드]` 버튼 제공.
+
 
 
 

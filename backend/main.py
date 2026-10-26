@@ -5,6 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from backend.routers.silo_router import router as silo_router
 from backend.routers.analysis_router import router as analysis_router
+from backend.routers.report_router import router as report_router
 
 app = FastAPI(
     title="삼양 QC - Silo 수입 현황 및 성적서 자동화",
@@ -24,6 +25,7 @@ app.add_middleware(
 # API 라우터 등록
 app.include_router(silo_router)
 app.include_router(analysis_router)
+app.include_router(report_router)
 
 @app.get("/api/health")
 def health_check():

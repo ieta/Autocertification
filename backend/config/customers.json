@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "customer": "삼양화성",
+    "product": "BISPHENOL-A",
+    "template_name": "삼양화성 전용 (Prill Size 포함)"
+  },
+  {
+    "id": 2,
+    "customer": "국도화학",
+    "product": "BISPHENOL-A",
+    "template_name": "국도화학 전용 (Alkali 색상 포함)"
+  },
+  {
+    "id": 3,
+    "customer": "롯데케미칼(기초소재)",
+    "product": "BISPHENOL-A",
+    "template_name": "표준 공용 양식"
+  },
+  {
+    "id": 4,
+    "customer": "롯데케미칼(첨단소재)",
+    "product": "BISPHENOL-A",
+    "template_name": "표준 공용 양식"
+  },
+  {
+    "id": 5,
+    "customer": "아이씨케미칼",
+    "product": "BISPHENOL-A",
+    "template_name": "표준 공용 양식"
+  }
+]

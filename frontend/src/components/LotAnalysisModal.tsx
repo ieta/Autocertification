@@ -1,5 +1,5 @@
-import React from 'react';
-import { X, CheckCircle2, XCircle, FileText, Download } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, CheckCircle2, XCircle, FileText, Download, Eye, Table as TableIcon, ExternalLink } from 'lucide-react';
 
 interface ItemEval {
   value: string;
@@ -16,6 +16,13 @@ export interface LotAnalysisData {
   items: Record<string, ItemEval>;
 }
 
+interface CustomerOption {
+  id: number;
+  customer: string;
+  product: string;
+  template_name: string;
+}
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
@@ -29,7 +36,36 @@ export const LotAnalysisModal: React.FC<Props> = ({
   data,
   loading
 }) => {
+  const [activeTab, setActiveTab] = useState<'table' | 'pdf'>('table');
+  const [customers, setCustomers] = useState<CustomerOption[]>([]);
+  const [selectedCustomer, setSelectedCustomer] = useState<string>('삼양화성');
+  const [issueDate, setIssueDate] = useState<string>(new Date().toISOString().slice(0, 10));
+
+  useEffect(() => {
+    if (isOpen) {
+      fetch('/api/reports/customers')
+        .then(res => res.json())
+        .then(d => {
+          if (Array.isArray(d)) {
+            setCustomers(d);
+            if (d.length > 0 && !selectedCustomer) {
+              setSelectedCustomer(d[0].customer);
+            }
+          }
+        })
+        .catch(err => console.error('Failed to load customers:', err));
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
+
+  const pdfUrl = data
+    ? `/api/reports/lot/${data.lot_no}/pdf?customer_name=${encodeURIComponent(selectedCustomer)}&issue_date=${issueDate}`
+    : '';
+
+  const downloadUrl = data
+    ? `/api/reports/lot/${data.lot_no}/pdf?customer_name=${encodeURIComponent(selectedCustomer)}&issue_date=${issueDate}&download=true`
+    : '';
 
   return (
     <div style={{
@@ -38,25 +74,27 @@ export const LotAnalysisModal: React.FC<Props> = ({
       left: 0,
       right: 0,
       bottom: 0,
-      background: 'rgba(0, 0, 0, 0.75)',
-      backdropFilter: 'blur(6px)',
+      background: 'rgba(0, 0, 0, 0.8)',
+      backdropFilter: 'blur(8px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 1100,
-      padding: '20px'
+      padding: '16px'
     }}>
       <div className="glass-panel" style={{
-        maxWidth: '800px',
+        maxWidth: activeTab === 'pdf' ? '960px' : '840px',
         width: '100%',
-        maxHeight: '90vh',
-        overflowY: 'auto',
+        height: '92vh',
+        display: 'flex',
+        flexDirection: 'column',
         background: '#111827',
         border: '1px solid #374151',
-        padding: '24px'
+        padding: '20px 24px',
+        transition: 'all 0.25s ease'
       }}>
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #374151', paddingBottom: '16px', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #374151', paddingBottom: '14px', marginBottom: '14px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{
               width: '38px',
@@ -73,7 +111,7 @@ export const LotAnalysisModal: React.FC<Props> = ({
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <h2 className="font-display" style={{ fontSize: '1.25rem', fontWeight: 700 }}>
-                  성적서 Lot 품질분석 집계 내역
+                  성적서 발행 및 품질분석 뷰어
                 </h2>
                 {data && (
                   <span className={`badge ${data.is_all_passed ? 'badge-success' : 'badge-warning'}`}>
@@ -82,115 +120,247 @@ export const LotAnalysisModal: React.FC<Props> = ({
                 )}
               </div>
               <p style={{ fontSize: '0.8125rem', color: '#9CA3AF' }}>
-                수입 구간 내 공정분석 시계열 평균치 및 품질 스펙 대조 결과
+                오즈 레포트 뷰어 형식의 실시간 인쇄/다운로드 및 규격 판정표
               </p>
             </div>
           </div>
-          <button className="btn btn-secondary" onClick={onClose} style={{ padding: '6px 10px' }}>
-            <X size={18} />
-          </button>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button className="btn btn-secondary" onClick={onClose} style={{ padding: '6px 10px' }}>
+              <X size={18} />
+            </button>
+          </div>
+        </div>
+
+        {/* Control & Tab Bar */}
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: '12px',
+          background: 'rgba(31, 41, 55, 0.5)',
+          padding: '8px 12px',
+          borderRadius: '8px',
+          marginBottom: '14px',
+          border: '1px solid rgba(55, 65, 81, 0.5)'
+        }}>
+          {/* Tabs */}
+          <div style={{ display: 'flex', gap: '6px' }}>
+            <button
+              onClick={() => setActiveTab('table')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 12px',
+                borderRadius: '6px',
+                fontSize: '0.8125rem',
+                fontWeight: 600,
+                background: activeTab === 'table' ? '#3B82F6' : 'transparent',
+                color: activeTab === 'table' ? '#FFFFFF' : '#9CA3AF',
+                border: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              <TableIcon size={14} />
+              품질 규격 분석표
+            </button>
+            <button
+              onClick={() => setActiveTab('pdf')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 12px',
+                borderRadius: '6px',
+                fontSize: '0.8125rem',
+                fontWeight: 600,
+                background: activeTab === 'pdf' ? '#3B82F6' : 'transparent',
+                color: activeTab === 'pdf' ? '#FFFFFF' : '#9CA3AF',
+                border: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              <Eye size={14} />
+              공식 성적서 뷰어 (PDF)
+            </button>
+          </div>
+
+          {/* Customer & Date Selector */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '0.78125rem', color: '#9CA3AF' }}>출하선(고객사):</span>
+              <select
+                value={selectedCustomer}
+                onChange={(e) => setSelectedCustomer(e.target.value)}
+                style={{
+                  background: '#1F2937',
+                  border: '1px solid #4B5563',
+                  color: '#F9FAFB',
+                  fontSize: '0.8125rem',
+                  padding: '4px 8px',
+                  borderRadius: '6px',
+                  outline: 'none'
+                }}
+              >
+                {customers.map((c) => (
+                  <option key={c.id} value={c.customer}>
+                    {c.customer}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '0.78125rem', color: '#9CA3AF' }}>발행일:</span>
+              <input
+                type="date"
+                value={issueDate}
+                onChange={(e) => setIssueDate(e.target.value)}
+                style={{
+                  background: '#1F2937',
+                  border: '1px solid #4B5563',
+                  color: '#F9FAFB',
+                  fontSize: '0.8125rem',
+                  padding: '3px 6px',
+                  borderRadius: '6px',
+                  outline: 'none'
+                }}
+              />
+            </div>
+          </div>
         </div>
 
         {loading && (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#9CA3AF' }}>
-            분석 데이터를 집계하는 중입니다...
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9CA3AF' }}>
+            분석 데이터 및 성적서를 불러오는 중입니다...
           </div>
         )}
 
         {!loading && data && (
-          <>
-            {/* Meta Summary Bar */}
-            <div style={{
-              background: '#1F2937',
-              borderRadius: '10px',
-              padding: '14px 18px',
-              marginBottom: '18px',
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              gap: '12px'
-            }}>
-              <div>
-                <span style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>대상 LOT: </span>
-                <strong className="font-mono" style={{ fontSize: '1.125rem', color: '#34D399', marginLeft: '4px' }}>
-                  {data.lot_no}
-                </strong>
-              </div>
-              <div>
-                <span style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>수입 구간: </span>
-                <span className="font-mono" style={{ fontSize: '0.8125rem', color: '#E5E7EB', marginLeft: '4px' }}>
-                  {data.st_range}
-                </span>
-              </div>
-              <div>
-                <span style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>매칭 분석치: </span>
-                <span style={{ fontSize: '0.8125rem', color: '#60A5FA', fontWeight: 600 }}>
-                  {data.matched_count}건 평균 집계
-                </span>
-              </div>
-            </div>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+            {activeTab === 'table' ? (
+              <div style={{ overflowY: 'auto', flex: 1, paddingRight: '4px' }}>
+                {/* Meta Summary Bar */}
+                <div style={{
+                  background: '#1F2937',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: '12px'
+                }}>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>대상 LOT: </span>
+                    <strong className="font-mono" style={{ fontSize: '1.125rem', color: '#34D399', marginLeft: '4px' }}>
+                      {data.lot_no}
+                    </strong>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>수입 구간: </span>
+                    <span className="font-mono" style={{ fontSize: '0.8125rem', color: '#E5E7EB', marginLeft: '4px' }}>
+                      {data.st_range}
+                    </span>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>매칭 분석치: </span>
+                    <span style={{ fontSize: '0.8125rem', color: '#60A5FA', fontWeight: 600 }}>
+                      {data.matched_count}건 평균 집계
+                    </span>
+                  </div>
+                </div>
 
-            {/* Test Items Table */}
-            <div style={{ overflowX: 'auto', marginBottom: '20px' }}>
-              <table className="custom-table">
-                <thead>
-                  <tr>
-                    <th>시험 항목 (Test Item)</th>
-                    <th style={{ textAlign: 'right' }}>분석 결과값</th>
-                    <th>단위</th>
-                    <th>품질 규격 기준 (Spec)</th>
-                    <th style={{ textAlign: 'center' }}>합부 판정</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.entries(data.items).map(([itemName, evalItem]) => (
-                    <tr key={itemName}>
-                      <td style={{ fontWeight: 600, color: '#E5E7EB' }}>
-                        {itemName}
-                      </td>
-                      <td className="font-mono" style={{ textAlign: 'right', fontWeight: 700, fontSize: '0.9375rem', color: '#F9FAFB' }}>
-                        {evalItem.value}
-                      </td>
-                      <td style={{ color: '#9CA3AF', fontSize: '0.8125rem' }}>
-                        {evalItem.unit || '-'}
-                      </td>
-                      <td style={{ color: '#9CA3AF', fontSize: '0.8125rem' }}>
-                        {evalItem.spec || '규격 없음'}
-                      </td>
-                      <td style={{ textAlign: 'center' }}>
-                        {evalItem.passed ? (
-                          <span style={{ color: '#34D399', display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.8125rem', fontWeight: 700 }}>
-                            <CheckCircle2 size={15} /> PASS
-                          </span>
-                        ) : (
-                          <span style={{ color: '#F87171', display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.8125rem', fontWeight: 700 }}>
-                            <XCircle size={15} /> FAIL
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                {/* Test Items Table */}
+                <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
+                  <table className="custom-table">
+                    <thead>
+                      <tr>
+                        <th>시험 항목 (Test Item)</th>
+                        <th style={{ textAlign: 'right' }}>분석 결과값</th>
+                        <th>단위</th>
+                        <th>품질 규격 기준 (Spec)</th>
+                        <th style={{ textAlign: 'center' }}>합부 판정</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Object.entries(data.items).map(([itemName, evalItem]) => (
+                        <tr key={itemName}>
+                          <td style={{ fontWeight: 600, color: '#E5E7EB' }}>
+                            {itemName}
+                          </td>
+                          <td className="font-mono" style={{ textAlign: 'right', fontWeight: 700, fontSize: '0.9375rem', color: '#F9FAFB' }}>
+                            {evalItem.value}
+                          </td>
+                          <td style={{ color: '#9CA3AF', fontSize: '0.8125rem' }}>
+                            {evalItem.unit || '-'}
+                          </td>
+                          <td style={{ color: '#9CA3AF', fontSize: '0.8125rem' }}>
+                            {evalItem.spec || '규격 없음'}
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            {evalItem.passed ? (
+                              <span style={{ color: '#34D399', display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.8125rem', fontWeight: 700 }}>
+                                <CheckCircle2 size={15} /> PASS
+                              </span>
+                            ) : (
+                              <span style={{ color: '#F87171', display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.8125rem', fontWeight: 700 }}>
+                                <XCircle size={15} /> FAIL
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ) : (
+              /* PDF Viewer Frame */
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', minHeight: 0 }}>
+                <iframe
+                  title="성적서 PDF 뷰어"
+                  src={pdfUrl}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    border: '1px solid #374151',
+                    borderRadius: '8px',
+                    background: '#FFFFFF'
+                  }}
+                />
+              </div>
+            )}
 
             {/* Bottom Actions */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid #374151', paddingTop: '16px' }}>
-              <button className="btn btn-secondary" onClick={onClose}>
-                닫기
-              </button>
-              <button
-                className="btn btn-primary"
-                onClick={() => {
-                  alert(`[성적서 발행 연동]\n\nLot No: ${data.lot_no}\n종합 판정: 적합 (PASS)\n\nWord 템플릿 치환 및 PDF 출력이 곧 연동됩니다.`);
-                }}
-              >
-                <Download size={16} />
-                성적서 PDF 발행
-              </button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #374151', paddingTop: '14px', marginTop: '10px' }}>
+              <div style={{ fontSize: '0.8125rem', color: '#9CA3AF' }}>
+                선택된 서식: <strong>{selectedCustomer}</strong> ({customers.find(c => c.customer === selectedCustomer)?.template_name || '기본 서식'})
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => window.open(pdfUrl, '_blank')}
+                  style={{ gap: '6px' }}
+                >
+                  <ExternalLink size={15} />
+                  새 창으로 열기 / 인쇄
+                </button>
+                <a
+                  href={downloadUrl}
+                  download={`${selectedCustomer}_${data.lot_no}_성적서.pdf`}
+                  className="btn btn-primary"
+                  style={{ gap: '6px', textDecoration: 'none' }}
+                >
+                  <Download size={15} />
+                  성적서 PDF 다운로드
+                </a>
+              </div>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>
