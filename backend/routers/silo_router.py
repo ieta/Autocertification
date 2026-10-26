@@ -12,6 +12,44 @@ def get_silo_status() -> Dict[str, Any]:
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"PI Server 실시간 상태 조회 실패: {str(e)}")
 
+@router.get("/latest-by-silo")
+def get_latest_by_silo() -> List[Dict[str, Any]]:
+    """
+    Silo A, Silo B, Silo C 각각에 대해 가장 최신의 대상 Lot 세션 1개씩(총 3개)을 반환합니다.
+    (현재 수입 진행 중인 Silo 1개 + 수입 완료된 나머지 Silo 2개)
+    """
+    try:
+        history = pi_service.get_silo_import_history(days=30)
+        silos = ['A', 'B', 'C']
+        latest_map = {}
+
+        for h in history:
+            s_name = h.get("silo")
+            if s_name in silos and s_name not in latest_map:
+                item = dict(h)
+                item.pop("start_dt", None)
+                item.pop("end_dt", None)
+                latest_map[s_name] = item
+
+        # A, B, C 순서 보장
+        result = []
+        for s in silos:
+            if s in latest_map:
+                result.append(latest_map[s])
+            else:
+                # 이력이 없는 경우 기본 더미 생성
+                result.append({
+                    "silo": s,
+                    "lot_no": "-",
+                    "start_time": "-",
+                    "end_time": "-",
+                    "duration_str": "-",
+                    "is_active": False
+                })
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Silo별 최신 세션 조회 실패: {str(e)}")
+
 @router.get("/history")
 def get_silo_history(
     days: int = Query(default=14, ge=1, le=90),

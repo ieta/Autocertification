@@ -34,16 +34,16 @@ export const SessionHistoryTable: React.FC<Props> = ({ sessions, onSelectSession
           </div>
           <div>
             <h3 className="font-display" style={{ fontSize: '1.125rem', fontWeight: 700 }}>
-              Silo 수입 세션 이력 (ST ~ END 구간 및 Lot)
+              Silo별 성적서 대상 Lot 현황 (Silo A, B, C)
             </h3>
             <p style={{ fontSize: '0.8125rem', color: '#9CA3AF' }}>
-              수입 개시일 기준 자동 채번된 최근 5개 세션 내역입니다. 기 수입 완료된 Lot의 분석 데이터 조회가 가능합니다.
+              각 Silo 저장조별 최신 대상 Lot 및 성적서 발행 현황입니다 (설비별 1개 Lot 고정).
             </p>
           </div>
         </div>
 
         <span className="badge badge-primary">
-          최근 {sessions.length}개 세션
+          Silo A · B · C (3기)
         </span>
       </div>
 
@@ -62,7 +62,7 @@ export const SessionHistoryTable: React.FC<Props> = ({ sessions, onSelectSession
       }}>
         <span>💡</span>
         <span>
-          <strong>수입 완료된 Lot</strong>(예: <strong>26BJ25</strong>)의 <strong>[성적서 / 분석 조회]</strong> 버튼을 누르면 해당 구간(ST~END)의 11개 공정분석 집계치 및 규격 판정표를 확인할 수 있습니다.
+          Silo A, B, C 각 저장조의 최신 대상 Lot입니다. <strong>수입이 완료된 Silo</strong>의 <strong>[성적서 / 분석 조회]</strong> 버튼을 누르면 해당 Lot의 품질분석 결과 확인 및 성적서 PDF 조회가 가능합니다.
         </span>
       </div>
 

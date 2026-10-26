@@ -1,4 +1,5 @@
 import os
+import sys
 import io
 import datetime
 import logging
@@ -45,8 +46,23 @@ def normalize_key(k: str) -> str:
 
 class ReportGenerator:
     def __init__(self):
-        self.base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        self.img_dir = os.path.join(self.base_dir, "assets", "images")
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        candidate_img_dirs = [
+            os.path.join(base_dir, "assets", "images")
+        ]
+        if hasattr(sys, '_MEIPASS'):
+            candidate_img_dirs.insert(0, os.path.join(sys._MEIPASS, "backend", "assets", "images"))
+            candidate_img_dirs.insert(0, os.path.join(sys._MEIPASS, "assets", "images"))
+        if getattr(sys, 'frozen', False):
+            candidate_img_dirs.append(os.path.join(os.path.dirname(sys.executable), "backend", "assets", "images"))
+
+        self.img_dir = candidate_img_dirs[0]
+        for cid in candidate_img_dirs:
+            if os.path.exists(cid):
+                self.img_dir = cid
+                break
+
+        self.base_dir = base_dir
         self._init_fonts()
 
     def _init_fonts(self):

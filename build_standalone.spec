@@ -9,6 +9,7 @@ datas = [
     (os.path.join(base_dir, 'frontend', 'dist'), os.path.join('frontend', 'dist')),
     (os.path.join(base_dir, 'backend', 'config'), os.path.join('backend', 'config')),
     (os.path.join(base_dir, 'backend', 'assets'), os.path.join('backend', 'assets')),
+    (os.path.join(base_dir, 'backend', 'data'), os.path.join('backend', 'data')),
 ]
 
 hiddenimports = [

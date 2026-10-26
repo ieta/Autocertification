@@ -73,11 +73,11 @@ export function App() {
         setStatus(dataStatus);
       }
 
-      // 2. Fetch history (최근 5개 세션)
-      const resHistory = await fetch('/api/silos/history?days=14&limit=5');
+      // 2. Fetch latest per Silo (Silo A, B, C 각각 최신 1건씩 총 3건)
+      const resHistory = await fetch('/api/silos/latest-by-silo');
       if (resHistory.ok) {
         const dataHistory = await resHistory.json();
-        setHistory(dataHistory.slice(0, 5));
+        setHistory(dataHistory);
       }
 
       setLastUpdated(new Date().toLocaleTimeString('ko-KR'));

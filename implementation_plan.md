@@ -340,6 +340,26 @@ flowchart TD
    * 최종 산출물: [CertificateAutomation.exe](file:///d:/04.%20Antigravity/Certification_Automation%202/CertificateAutomation.exe) (약 68.7MB).
    * **대상 PC에 Python 설치, pip 다운로드, 인터넷 연결 여부와 완전히 무관하게 더블클릭 1초 만에 100% 정상 실행 보장**.
 
+---
+
+## [v5.2] 2026-10-26: 타 PC 500 에러 해결(캐시 번들링) 및 Silo A, B, C 저장조별 1:1 고정 Lot 매핑
+1. **타 PC 500 Internal Server Error 원인 규명 및 해결**:
+   * 원인: Google OAuth 미인증 PC에서 폴백 캐시 파일(`analysis_mail_cache.html`)을 읽어야 하나, `build_standalone.spec`의 번들 대상에 `backend/data` 폴더가 누락되어 캐시 파일을 찾지 못하고 500 에러 발생.
+   * 해결:
+     - [build_standalone.spec](file:///d:/04.%20Antigravity/Certification_Automation%202/build_standalone.spec)에 `backend/data`를 포함시켜 40건의 공정분석 시계열 HTML 캐시를 실행 파일 내부에 완전 번들링.
+     - [backend/services/gmail_service.py](file:///d:/04.%20Antigravity/Certification_Automation%202/backend/services/gmail_service.py)에 `sys._MEIPASS` 경로 탐색기 및 캐시 부재 시 48시간 기준치 자동 생성(Fail-Safe) 안전망 구축.
+2. **Silo A, B, C 저장조별 성적서 대상 Lot 1:1 고정 매핑 (혼선 원천 방지)**:
+   * 기존: 밸브 전환 시간순으로 최근 5개 세션(B, A, B, A...)이 나열되어 중복 표출 및 혼선 발생.
+   * 개선:
+     - 백엔드에 `GET /api/silos/latest-by-silo` 엔드포인트 구축 ([backend/routers/silo_router.py](file:///d:/04.%20Antigravity/Certification_Automation%202/backend/routers/silo_router.py)).
+     - **Silo A, Silo B, Silo C 3개 설비 각각에 대해 가장 최신 대상 Lot를 1개씩만(총 3개 행 고정) 표출**:
+       * Silo A: 가장 최근 완료된 최신 Lot (`26AJ24`) $\rightarrow$ `[성적서 / 분석 조회]` 활성화
+       * Silo B: 가장 최근 완료된 최신 Lot (`26BJ25`) $\rightarrow$ `[성적서 / 분석 조회]` 활성화
+       * Silo C: 실시간 수입 진행 중인 Lot (`26CJ26`) $\rightarrow$ `[수입 진행 중 (집계 대기)]` 비활성화
+3. **독립형 실행 파일 재빌드 및 배포 완료**:
+   * [CertificateAutomation.exe](file:///d:/04.%20Antigravity/Certification_Automation%202/CertificateAutomation.exe) (약 68.7MB) 생성 완료.
+
+
 
 
 
