@@ -11,7 +11,8 @@ import {
   Layers,
   ShieldCheck,
   FileCheck,
-  Calendar
+  Calendar,
+  Power
 } from 'lucide-react';
 
 interface SiloStatus {
@@ -251,6 +252,36 @@ export function App() {
               disabled={loading}
             >
               <RefreshCw size={14} className={loading ? 'liquid-wave' : ''} />
+            </button>
+
+            {/* Apple Style System Shutdown Button */}
+            <button
+              onClick={async () => {
+                if (window.confirm('삼양 성적서 자동화 시스템을 종료하시겠습니까?')) {
+                  try {
+                    await fetch('/api/system/shutdown', { method: 'POST' });
+                  } catch (e) {}
+                  alert('시스템이 종료되었습니다. 브라우저 탭을 닫으셔도 됩니다.');
+                  window.close();
+                }
+              }}
+              title="시스템 종료"
+              style={{
+                background: 'rgba(255, 59, 48, 0.15)',
+                border: '1px solid rgba(255, 59, 48, 0.3)',
+                color: '#ff453a',
+                padding: '4px 10px',
+                borderRadius: '9999px',
+                fontSize: '0.6875rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                cursor: 'pointer',
+                marginLeft: '4px'
+              }}
+            >
+              <Power size={11} />
+              종료
             </button>
           </div>
         </div>

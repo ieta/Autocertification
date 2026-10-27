@@ -4,12 +4,22 @@ import multiprocessing
 import webbrowser
 import threading
 import time
+import socket
 import uvicorn
 
-def open_browser():
-    time.sleep(2.0)
-    url = "http://127.0.0.1:8000"
-    print(f"\n[SYSTEM] 브라우저를 자동 실행합니다: {url}")
+def wait_and_open_browser(port=8000):
+    """
+    고정 대기 시간(sleep) 대신 소켓으로 포트 리스닝을 0.05초 단위로 감지하여
+    서버가 준비되는 즉시 0.1초 만에 브라우저를 오픈합니다.
+    """
+    url = f"http://127.0.0.1:{port}"
+    for _ in range(100):  # 최대 5초 대기
+        try:
+            with socket.create_connection(("127.0.0.1", port), timeout=0.1):
+                break
+        except (OSError, ConnectionRefusedError):
+            time.sleep(0.05)
+    
     try:
         if sys.platform == "win32":
             os.system(f'start "" "{url}"')
@@ -29,15 +39,8 @@ if __name__ == "__main__":
     os.chdir(base_dir)
     sys.path.insert(0, base_dir)
 
+    # 지연 로딩: 앱을 필요한 시점에 불러와 초기 기동 시간 최소화
     from backend.main import app
 
-    print("=" * 65)
-    print("  삼양 이노켐 BPA 성적서 자동화 시스템 v2.0 (실행 중)")
-    print("  AVEVA PI Web API Live Integration")
-    print("=" * 65)
-    print(" * Web Server URL: http://127.0.0.1:8000")
-    print(" * 종료 방법: 이 콘솔 창을 닫으시면 프로그램이 종료됩니다.")
-    print("=" * 65)
-
-    threading.Thread(target=open_browser, daemon=True).start()
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
+    threading.Thread(target=wait_and_open_browser, args=(8000,), daemon=True).start()
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="warning")

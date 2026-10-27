@@ -32,6 +32,17 @@ app.include_router(report_router)
 def health_check():
     return {"status": "ok", "service": "Silo Monitoring Backend"}
 
+@app.post("/api/system/shutdown")
+def shutdown_system():
+    """백그라운드 구동 중인 시스템을 안전하게 종료"""
+    def _kill():
+        import time
+        time.sleep(0.5)
+        os._exit(0)
+    import threading
+    threading.Thread(target=_kill, daemon=True).start()
+    return {"status": "shutting_down", "message": "시스템이 정상적으로 종료됩니다."}
+
 # Frontend dist 정적 서빙 (빌드된 경우)
 def get_frontend_dist():
     # 1. PyInstaller _MEIPASS 내부 번들 경로

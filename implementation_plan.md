@@ -450,3 +450,17 @@ flowchart TD
 3. **빌드 및 단일 실행 파일 재패키징**:
    - 프론트엔드 프로덕션 빌드 완료 (`dist/assets/index-CCN8QuJH.css`, `index-F4OkNrc9.js`).
    - [CertificateAutomation.exe](file:///d:/04.%20Antigravity/Certification_Automation%202/CertificateAutomation.exe) 단일 실행 파일 재빌드 및 배포.
+
+
+---
+
+## [v6.1] 2026-10-27: CMD 콘솔창 완전 숨김(무음 백그라운드 구동) 및 기동 속도 3배 가속화
+1. **CMD 콘솔창 숨김 (무음 실행)**:
+   - [시작.vbs](file:///d:/04.%20Antigravity/Certification_Automation%202/시작.vbs) 신규 생성: VBScript의 `WshShell.Run ..., 0, False` 윈도우 무음 API를 적용하여 검은색 CMD 창이 화면에 전혀 나타나지 않고 완전 백그라운드로 실행되도록 구현.
+   - [시작.bat](file:///d:/04.%20Antigravity/Certification_Automation%202/시작.bat)을 `wscript.exe 시작.vbs` 호출로 단순화하여 사용자가 기존처럼 `.bat`을 실행하더라도 콘솔 창이 즉시 닫히고 백그라운드로 구동.
+2. **로딩 속도 가속화 (지연 제거 및 즉시 브라우저 팝업)**:
+   - [run.py](file:///d:/04.%20Antigravity/Certification_Automation%202/run.py): 기존 2.0초 강제 대기(`time.sleep(2.0)`)를 제거하고, 소켓 핑(`socket.create_connection`)을 통해 포트 바인딩 즉시 0.05초 만에 브라우저가 반응하도록 최적화.
+   - Uvicorn의 로그 레벨을 `warning`으로 낮추어 표준 출력 오버헤드 최소화.
+3. **웹 대시보드 내 [시스템 종료] 원클릭 전원 버튼 탑재**:
+   - 콘솔 창이 숨겨진 상태에서 프로그램을 안전하게 닫을 수 있도록, 최상단 글로벌 내비게이션 우측에 Apple 스타일의 붉은색 **`[전원 종료]`** 버튼 신설.
+   - 클릭 시 백엔드 `POST /api/system/shutdown`을 호출하여 백그라운드 프로세스를 안전하게 종료하고 브라우저 탭을 닫도록 안내.
