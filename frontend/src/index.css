@@ -1,28 +1,45 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+/* ==========================================================================
+   Apple Design System (Applied from DESIGN-apple.md)
+   Samyang Innochem QC Certification Automation
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-display: 'Outfit', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  /* Apple Design System Color Palette */
+  --apple-primary: #0066cc;               /* Action Blue */
+  --apple-primary-hover: #0071e3;         /* Focus Blue */
+  --apple-primary-on-dark: #2997ff;       /* Sky Link Blue */
+  --apple-ink: #1d1d1f;                   /* Primary text on light */
+  --apple-body: #1d1d1f;
+  --apple-body-muted: #86868b;
+  --apple-ink-muted-80: #333333;
+  --apple-ink-muted-48: #7a7a7a;
+  
+  --apple-canvas: #ffffff;
+  --apple-canvas-parchment: #f5f5f7;      /* Clean neutral backdrop */
+  --apple-surface-pearl: #fafafc;
+  --apple-hairline: #d2d2d7;              /* Delicate Apple divider */
+  --apple-divider-soft: #e5e5ea;
+  
+  --apple-surface-tile-1: #272729;
+  --apple-surface-tile-2: #2a2a2c;
+  --apple-surface-black: #000000;
+  --apple-on-primary: #ffffff;
+  --apple-on-dark: #ffffff;
 
-  --bg-main: #0B0F19;
-  --bg-card: #111827;
-  --bg-card-sub: #1F2937;
-  --bg-glass: rgba(17, 24, 39, 0.75);
+  /* Typography Fonts & Letter Spacing */
+  --font-apple-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
+  --font-apple-text: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
 
-  --border-color: #374151;
-  --border-focus: #3B82F6;
-
-  --text-primary: #F9FAFB;
-  --text-secondary: #9CA3AF;
-  --text-muted: #6B7280;
-
-  --primary: #2563EB;
-  --primary-hover: #1D4ED8;
-  --accent-cyan: #06B6D4;
-  --accent-emerald: #10B981;
-  --accent-amber: #F59E0B;
-  --accent-rose: #F43F5E;
+  /* Semantic UI tokens */
+  --bg-main: var(--apple-canvas-parchment);
+  --bg-card: var(--apple-canvas);
+  --border-color: var(--apple-hairline);
+  --text-primary: var(--apple-ink);
+  --text-secondary: var(--apple-ink-muted-48);
+  --text-muted: #86868b;
 }
 
 * {
@@ -32,141 +49,168 @@
 }
 
 body {
-  font-family: var(--font-sans);
-  background-color: var(--bg-main);
-  color: var(--text-primary);
+  font-family: var(--font-apple-text);
+  background-color: var(--apple-canvas-parchment);
+  color: var(--apple-ink);
   min-height: 100vh;
-  line-height: 1.5;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Typography styles matching Apple Design Specs */
 .font-display {
-  font-family: var(--font-display);
+  font-family: var(--font-apple-display);
+  letter-spacing: -0.022em;
 }
 
 .font-mono {
   font-family: var(--font-mono);
+  letter-spacing: -0.01em;
 }
 
-/* Glassmorphism Card */
+/* Apple Global Navigation Bar (Pure Black Header) */
+.apple-global-nav {
+  background-color: var(--apple-surface-black);
+  color: var(--apple-on-dark);
+  padding: 12px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+/* Apple Utility Card (Clean white tile with subtle border, 18px rounded) */
+.apple-card {
+  background: var(--apple-canvas);
+  border: 1px solid var(--apple-divider-soft);
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+}
+
+.apple-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border-color: #c7c7cc;
+}
+
+/* Legacy .glass-panel support remapped to Apple Card */
 .glass-panel {
-  background: var(--bg-glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  transition: all 0.25s ease;
+  background: var(--apple-canvas);
+  border: 1px solid var(--apple-divider-soft);
+  border-radius: 18px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-panel:hover {
-  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
 }
 
-/* Pulsing Badge for Active Silo */
-@keyframes pulse-glow {
+/* Active Silo Card (Clean Apple Emerald Border with gentle glow) */
+@keyframes apple-pulse {
   0%, 100% {
-    box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
-    border-color: #10B981;
+    box-shadow: 0 4px 20px rgba(52, 199, 89, 0.15);
+    border-color: #34c759;
   }
   50% {
-    box-shadow: 0 0 25px rgba(16, 185, 129, 0.8);
-    border-color: #34D399;
+    box-shadow: 0 8px 30px rgba(52, 199, 89, 0.3);
+    border-color: #30d158;
   }
 }
 
 .active-silo-card {
-  animation: pulse-glow 3s infinite ease-in-out;
-  border-color: #10B981 !important;
-  background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(17, 24, 39, 0.95) 100%) !important;
+  animation: apple-pulse 3s infinite ease-in-out;
+  border-color: #34c759 !important;
+  background: #ffffff !important;
 }
 
-/* Liquid level animation */
-@keyframes wave-flow {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-.liquid-wave {
-  animation: wave-flow 4s linear infinite;
-}
-
-/* Badge styling */
+/* Badge styling (Apple Capsule Pill) */
 .badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.025em;
-  text-transform: uppercase;
-}
-
-.badge-success {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34D399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-}
-
-.badge-warning {
-  background: rgba(245, 158, 11, 0.15);
-  color: #FBBF24;
-  border: 1px solid rgba(245, 158, 11, 0.3);
-}
-
-.badge-neutral {
-  background: rgba(107, 114, 128, 0.2);
-  color: #9CA3AF;
-  border: 1px solid rgba(107, 114, 128, 0.3);
+  letter-spacing: -0.224px;
 }
 
 .badge-primary {
-  background: rgba(37, 99, 235, 0.15);
-  color: #60A5FA;
-  border: 1px solid rgba(37, 99, 235, 0.3);
+  background: rgba(0, 102, 204, 0.08);
+  color: var(--apple-primary);
+  border: 1px solid rgba(0, 102, 204, 0.2);
 }
 
-/* Modern Button */
+.badge-success {
+  background: rgba(52, 199, 89, 0.1);
+  color: #28a745;
+  border: 1px solid rgba(52, 199, 89, 0.25);
+}
+
+.badge-warning {
+  background: rgba(255, 149, 0, 0.1);
+  color: #d97706;
+  border: 1px solid rgba(255, 149, 0, 0.25);
+}
+
+.badge-neutral {
+  background: #f5f5f7;
+  color: #636366;
+  border: 1px solid #e5e5ea;
+}
+
+/* Apple Buttons (Signature Pill CTA with active scale 0.96) */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 10px;
-  font-size: 0.875rem;
-  font-weight: 600;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 9999px; /* Apple signature pill */
+  font-family: var(--font-apple-text);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: -0.224px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid transparent;
   outline: none;
+  user-select: none;
 }
 
+.btn:active {
+  transform: scale(0.96); /* Apple standard button micro-interaction */
+}
+
+/* Primary Button: Action Blue (#0066cc) */
 .btn-primary {
-  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  background-color: var(--apple-primary);
+  color: #ffffff;
+  border: none;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%);
-  transform: translateY(-1px);
+  background-color: var(--apple-primary-hover);
 }
 
+/* Secondary Button: Clean Pearl / Light Gray with hairline border */
 .btn-secondary {
-  background: #1F2937;
-  color: #D1D5DB;
-  border: 1px solid #374151;
+  background-color: #ffffff;
+  color: var(--apple-ink);
+  border: 1px solid var(--apple-divider-soft);
 }
 
 .btn-secondary:hover {
-  background: #374151;
-  color: white;
+  background-color: var(--apple-canvas-parchment);
+  border-color: #c7c7cc;
 }
 
-/* Table styling */
+/* Clean Apple Table */
 .custom-table {
   width: 100%;
   border-collapse: separate;
@@ -174,29 +218,28 @@ body {
 }
 
 .custom-table th {
-  background: #1F2937;
-  color: #9CA3AF;
+  background: #fbfbfd;
+  color: var(--apple-ink-muted-48);
   font-size: 0.75rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 12px 16px;
+  letter-spacing: -0.12px;
+  padding: 12px 18px;
   text-align: left;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--apple-divider-soft);
 }
 
 .custom-table th:first-child {
-  border-top-left-radius: 10px;
+  border-top-left-radius: 12px;
 }
 .custom-table th:last-child {
-  border-top-right-radius: 10px;
+  border-top-right-radius: 12px;
 }
 
 .custom-table td {
-  padding: 14px 16px;
-  border-bottom: 1px solid rgba(55, 65, 81, 0.5);
+  padding: 14px 18px;
+  border-bottom: 1px solid #f0f0f2;
   font-size: 0.875rem;
-  color: var(--text-primary);
+  color: var(--apple-ink);
 }
 
 .custom-table tr:last-child td {
@@ -204,5 +247,26 @@ body {
 }
 
 .custom-table tr:hover td {
-  background: rgba(31, 41, 55, 0.4);
+  background: #fafafc;
+}
+
+/* Signature Apple Product Shadow */
+.apple-product-shadow {
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 8px 24px;
+}
+
+/* Custom Scrollbar for Apple style */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #c7c7cc;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8e8e93;
 }

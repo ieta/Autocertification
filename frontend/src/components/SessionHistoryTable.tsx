@@ -18,26 +18,26 @@ interface Props {
 
 export const SessionHistoryTable: React.FC<Props> = ({ sessions, onSelectSession, onOpenHistorySearch }) => {
   return (
-    <div className="glass-panel" style={{ padding: '24px', marginTop: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+    <div className="apple-card" style={{ padding: '28px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{
             width: '36px',
             height: '36px',
-            borderRadius: '8px',
-            background: 'rgba(59, 130, 246, 0.15)',
-            color: '#60A5FA',
+            borderRadius: '10px',
+            background: 'rgba(0, 102, 204, 0.08)',
+            color: '#0066cc',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center'
           }}>
-            <History size={20} />
+            <History size={18} />
           </div>
           <div>
-            <h3 className="font-display" style={{ fontSize: '1.125rem', fontWeight: 700 }}>
-              Silo별 성적서 대상 Lot 현황 (Silo A, B, C)
+            <h3 className="font-display" style={{ fontSize: '1.25rem', fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.02em' }}>
+              Silo별 성적서 대상 Lot 현황
             </h3>
-            <p style={{ fontSize: '0.8125rem', color: '#9CA3AF' }}>
+            <p style={{ fontSize: '0.8125rem', color: '#86868b', letterSpacing: '-0.01em' }}>
               각 Silo 저장조별 최신 대상 Lot 및 성적서 발행 현황입니다 (설비별 1개 Lot 고정).
             </p>
           </div>
@@ -48,9 +48,9 @@ export const SessionHistoryTable: React.FC<Props> = ({ sessions, onSelectSession
             <button
               onClick={onOpenHistorySearch}
               className="btn btn-secondary"
-              style={{ fontSize: '0.8125rem', padding: '6px 12px', gap: '6px' }}
+              style={{ fontSize: '0.75rem', padding: '6px 14px', gap: '6px' }}
             >
-              <History size={14} style={{ color: '#60A5FA' }} />
+              <History size={13} style={{ color: '#0066cc' }} />
               과거 Lot 전체 조회
             </button>
           )}
@@ -60,20 +60,20 @@ export const SessionHistoryTable: React.FC<Props> = ({ sessions, onSelectSession
         </div>
       </div>
 
-      {/* 안내 팁 박스 */}
+      {/* Apple Subtle Tip Box */}
       <div style={{
-        padding: '10px 14px',
-        borderRadius: '8px',
-        background: 'rgba(59, 130, 246, 0.08)',
-        border: '1px solid rgba(59, 130, 246, 0.2)',
-        marginBottom: '16px',
+        padding: '12px 18px',
+        borderRadius: '12px',
+        background: '#f5f5f7',
+        border: '1px solid #e5e5ea',
+        marginBottom: '20px',
         display: 'flex',
         alignItems: 'center',
-        gap: '8px',
+        gap: '10px',
         fontSize: '0.8125rem',
-        color: '#93C5FD'
+        color: '#1d1d1f'
       }}>
-        <span>💡</span>
+        <span style={{ fontSize: '1rem' }}>💡</span>
         <span>
           Silo A, B, C 각 저장조의 최신 대상 Lot입니다. <strong>수입이 완료된 Silo</strong>의 <strong>[성적서 / 분석 조회]</strong> 버튼을 누르면 해당 Lot의 품질분석 결과 확인 및 성적서 PDF 조회가 가능합니다.
         </span>
@@ -96,7 +96,7 @@ export const SessionHistoryTable: React.FC<Props> = ({ sessions, onSelectSession
             {sessions.map((sess, idx) => {
               const isCurrent = sess.is_active;
               return (
-                <tr key={idx} style={{ background: isCurrent ? 'rgba(16, 185, 129, 0.05)' : 'transparent' }}>
+                <tr key={idx} style={{ background: isCurrent ? 'rgba(52, 199, 89, 0.04)' : 'transparent' }}>
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span style={{
@@ -105,36 +105,36 @@ export const SessionHistoryTable: React.FC<Props> = ({ sessions, onSelectSession
                         justifyContent: 'center',
                         width: '28px',
                         height: '28px',
-                        borderRadius: '6px',
-                        fontWeight: 700,
-                        fontSize: '0.875rem',
-                        background: sess.silo === 'A' ? 'rgba(59, 130, 246, 0.2)' : sess.silo === 'B' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)',
-                        color: sess.silo === 'A' ? '#60A5FA' : sess.silo === 'B' ? '#34D399' : '#FBBF24'
+                        borderRadius: '8px',
+                        fontWeight: 600,
+                        fontSize: '0.8125rem',
+                        background: sess.silo === 'A' ? 'rgba(0, 102, 204, 0.1)' : sess.silo === 'B' ? 'rgba(52, 199, 89, 0.1)' : 'rgba(255, 149, 0, 0.1)',
+                        color: sess.silo === 'A' ? '#0066cc' : sess.silo === 'B' ? '#28a745' : '#d97706'
                       }}>
                         {sess.silo}
                       </span>
-                      <span style={{ fontWeight: 600 }}>Silo {sess.silo}</span>
+                      <span style={{ fontWeight: 600, color: '#1d1d1f' }}>Silo {sess.silo}</span>
                     </div>
                   </td>
                   <td>
                     <span className="font-mono" style={{
-                      fontWeight: 700,
+                      fontWeight: 600,
                       fontSize: '0.9375rem',
-                      color: isCurrent ? '#34D399' : '#F3F4F6',
+                      color: isCurrent ? '#28a745' : '#1d1d1f',
                       padding: '2px 8px',
-                      borderRadius: '4px',
-                      background: isCurrent ? 'rgba(16, 185, 129, 0.15)' : 'rgba(55, 65, 81, 0.5)'
+                      borderRadius: '6px',
+                      background: isCurrent ? 'rgba(52, 199, 89, 0.12)' : '#f5f5f7'
                     }}>
                       {sess.lot_no}
                     </span>
                   </td>
-                  <td className="font-mono" style={{ color: '#E5E7EB' }}>
+                  <td className="font-mono" style={{ color: '#1d1d1f', fontSize: '0.8125rem' }}>
                     {sess.start_time}
                   </td>
-                  <td className="font-mono" style={{ color: isCurrent ? '#34D399' : '#E5E7EB', fontWeight: isCurrent ? 600 : 400 }}>
+                  <td className="font-mono" style={{ color: isCurrent ? '#28a745' : '#1d1d1f', fontWeight: isCurrent ? 600 : 400, fontSize: '0.8125rem' }}>
                     {sess.end_time}
                   </td>
-                  <td style={{ color: '#9CA3AF' }}>
+                  <td style={{ color: '#86868b', fontSize: '0.8125rem' }}>
                     {sess.duration_str}
                   </td>
                   <td>
@@ -145,7 +145,7 @@ export const SessionHistoryTable: React.FC<Props> = ({ sessions, onSelectSession
                       </span>
                     ) : (
                       <span className="badge badge-neutral" style={{ gap: '4px' }}>
-                        <CheckCircle2 size={12} style={{ color: '#9CA3AF' }} />
+                        <CheckCircle2 size={12} style={{ color: '#86868b' }} />
                         수입 완료
                       </span>
                     )}
@@ -155,21 +155,21 @@ export const SessionHistoryTable: React.FC<Props> = ({ sessions, onSelectSession
                       <span style={{
                         display: 'inline-block',
                         fontSize: '0.75rem',
-                        color: '#9CA3AF',
-                        padding: '5px 10px',
-                        borderRadius: '6px',
-                        background: 'rgba(55, 65, 81, 0.4)',
-                        border: '1px solid rgba(75, 85, 99, 0.3)'
+                        color: '#86868b',
+                        padding: '5px 12px',
+                        borderRadius: '9999px',
+                        background: '#f5f5f7',
+                        border: '1px solid #e5e5ea'
                       }}>
                         수입 진행 중 (집계 대기)
                       </span>
                     ) : (
                       <button
                         className="btn btn-primary"
-                        style={{ padding: '6px 12px', fontSize: '0.8125rem', gap: '5px', boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)' }}
+                        style={{ padding: '6px 16px', fontSize: '0.75rem', gap: '5px' }}
                         onClick={() => onSelectSession && onSelectSession(sess)}
                       >
-                        <FileText size={14} />
+                        <FileText size={13} />
                         성적서 / 분석 조회
                       </button>
                     )}

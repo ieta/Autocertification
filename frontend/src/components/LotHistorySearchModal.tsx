@@ -38,7 +38,6 @@ export const LotHistorySearchModal: React.FC<Props> = ({ isOpen, onClose, onSele
 
   if (!isOpen) return null;
 
-  // Filtered list
   const filtered = history.filter((item) => {
     const matchesSearch =
       searchTerm.trim() === '' ||
@@ -47,7 +46,6 @@ export const LotHistorySearchModal: React.FC<Props> = ({ isOpen, onClose, onSele
     return matchesSearch && matchesSilo;
   });
 
-  // Direct MIS Quick Copy function for a lot
   const handleQuickCopyMIS = async (lotNo: string) => {
     try {
       const res = await fetch(`/api/analysis/lot/${lotNo}`);
@@ -83,53 +81,54 @@ export const LotHistorySearchModal: React.FC<Props> = ({ isOpen, onClose, onSele
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.75)',
-      backdropFilter: 'blur(6px)',
+      backgroundColor: 'rgba(0, 0, 0, 0.4)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 1000,
-      padding: '20px'
+      padding: '24px'
     }}>
-      <div className="glass-panel" style={{
+      <div className="apple-card" style={{
         width: '1000px',
         maxWidth: '96vw',
-        maxHeight: '90vh',
+        maxHeight: '88vh',
         display: 'flex',
         flexDirection: 'column',
-        borderRadius: '16px',
-        border: '1px solid var(--border-color)',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-        background: '#111827',
+        borderRadius: '20px',
+        border: '1px solid #d2d2d7',
+        boxShadow: '0 20px 48px rgba(0, 0, 0, 0.16)',
+        background: '#ffffff',
         overflow: 'hidden'
       }}>
         {/* Modal Header */}
         <div style={{
-          padding: '20px 24px',
-          borderBottom: '1px solid var(--border-color)',
+          padding: '20px 28px',
+          borderBottom: '1px solid #e5e5ea',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          background: 'rgba(17, 24, 39, 0.95)'
+          background: '#ffffff'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
-              width: '40px',
-              height: '40px',
+              width: '38px',
+              height: '38px',
               borderRadius: '10px',
-              background: 'rgba(59, 130, 246, 0.15)',
-              color: '#60A5FA',
+              background: 'rgba(0, 102, 204, 0.08)',
+              color: '#0066cc',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <Calendar size={22} />
+              <Calendar size={20} />
             </div>
             <div>
-              <h2 className="font-display" style={{ fontSize: '1.25rem', fontWeight: 700 }}>
+              <h2 className="font-display" style={{ fontSize: '1.25rem', fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.02em' }}>
                 과거 Lot 이력 및 MIS 데이터 조회
               </h2>
-              <p style={{ fontSize: '0.8125rem', color: '#9CA3AF' }}>
+              <p style={{ fontSize: '0.8125rem', color: '#86868b' }}>
                 주말/연휴 및 과거 30일간 완료된 모든 Lot 번호를 검색하고 MIS 입력용 엑셀 수치를 즉시 복사합니다.
               </p>
             </div>
@@ -137,31 +136,41 @@ export const LotHistorySearchModal: React.FC<Props> = ({ isOpen, onClose, onSele
 
           <button
             onClick={onClose}
-            className="btn btn-secondary"
-            style={{ padding: '8px', borderRadius: '8px' }}
+            style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              background: '#f5f5f7',
+              border: 'none',
+              color: '#86868b',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
-        {/* Filter & Search Bar */}
+        {/* Filter & Search Bar (Apple Parchment styling) */}
         <div style={{
-          padding: '16px 24px',
-          background: 'rgba(31, 41, 55, 0.5)',
-          borderBottom: '1px solid var(--border-color)',
+          padding: '14px 28px',
+          background: '#f5f5f7',
+          borderBottom: '1px solid #e5e5ea',
           display: 'flex',
           gap: '12px',
           alignItems: 'center',
           flexWrap: 'wrap'
         }}>
-          {/* Search Box */}
+          {/* Apple Pill Search Box */}
           <div style={{
             position: 'relative',
             flex: '1 1 300px',
             display: 'flex',
             alignItems: 'center'
           }}>
-            <Search size={18} style={{ position: 'absolute', left: '12px', color: '#9CA3AF' }} />
+            <Search size={16} style={{ position: 'absolute', left: '14px', color: '#86868b' }} />
             <input
               type="text"
               placeholder="Lot 번호 검색 (예: 26AJ24, 26BJ25)..."
@@ -169,13 +178,14 @@ export const LotHistorySearchModal: React.FC<Props> = ({ isOpen, onClose, onSele
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
                 width: '100%',
-                padding: '10px 14px 10px 38px',
-                borderRadius: '8px',
-                border: '1px solid var(--border-color)',
-                background: '#1F2937',
-                color: '#F9FAFB',
-                fontSize: '0.875rem',
-                outline: 'none'
+                padding: '9px 14px 9px 38px',
+                borderRadius: '9999px',
+                border: '1px solid #d2d2d7',
+                background: '#ffffff',
+                color: '#1d1d1f',
+                fontSize: '0.8125rem',
+                outline: 'none',
+                transition: 'border-color 0.2s ease'
               }}
             />
             {searchTerm && (
@@ -186,16 +196,16 @@ export const LotHistorySearchModal: React.FC<Props> = ({ isOpen, onClose, onSele
                   right: '12px',
                   background: 'none',
                   border: 'none',
-                  color: '#9CA3AF',
+                  color: '#86868b',
                   cursor: 'pointer'
                 }}
               >
-                <X size={16} />
+                <X size={15} />
               </button>
             )}
           </div>
 
-          {/* Silo Selector */}
+          {/* Silo Selector Capsules */}
           <div style={{ display: 'flex', gap: '6px' }}>
             {['ALL', 'A', 'B', 'C'].map((s) => (
               <button
@@ -203,9 +213,9 @@ export const LotHistorySearchModal: React.FC<Props> = ({ isOpen, onClose, onSele
                 onClick={() => setSiloFilter(s)}
                 className={`btn ${siloFilter === s ? 'btn-primary' : 'btn-secondary'}`}
                 style={{
-                  padding: '8px 14px',
-                  fontSize: '0.8125rem',
-                  fontWeight: 600
+                  padding: '6px 14px',
+                  fontSize: '0.75rem',
+                  fontWeight: 500
                 }}
               >
                 {s === 'ALL' ? '전체 Silo' : `Silo ${s}`}
@@ -218,9 +228,9 @@ export const LotHistorySearchModal: React.FC<Props> = ({ isOpen, onClose, onSele
             onClick={fetchHistory}
             className="btn btn-secondary"
             disabled={loading}
-            style={{ padding: '8px 14px', fontSize: '0.8125rem' }}
+            style={{ padding: '6px 14px', fontSize: '0.75rem' }}
           >
-            <RefreshCw size={14} className={loading ? 'liquid-wave' : ''} />
+            <RefreshCw size={12} className={loading ? 'liquid-wave' : ''} />
             새로고침
           </button>
         </div>
@@ -228,10 +238,10 @@ export const LotHistorySearchModal: React.FC<Props> = ({ isOpen, onClose, onSele
         {/* Copy Success Feedback Banner */}
         {copyFeedback && (
           <div style={{
-            padding: '10px 24px',
-            background: 'rgba(16, 185, 129, 0.2)',
-            borderBottom: '1px solid rgba(16, 185, 129, 0.4)',
-            color: '#34D399',
+            padding: '10px 28px',
+            background: 'rgba(52, 199, 89, 0.1)',
+            borderBottom: '1px solid rgba(52, 199, 89, 0.25)',
+            color: '#28a745',
             fontSize: '0.8125rem',
             display: 'flex',
             alignItems: 'center',
@@ -243,14 +253,13 @@ export const LotHistorySearchModal: React.FC<Props> = ({ isOpen, onClose, onSele
         )}
 
         {/* Table Content */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '16px 24px' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '16px 28px' }}>
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#9CA3AF' }}>
-              <div className="liquid-wave" style={{ width: '32px', height: '32px', border: '3px solid #3B82F6', borderTopColor: 'transparent', borderRadius: '50%', margin: '0 auto 12px' }} />
+            <div style={{ textAlign: 'center', padding: '40px', color: '#86868b' }}>
               과거 수입 이력을 불러오는 중입니다...
             </div>
           ) : filtered.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#9CA3AF' }}>
+            <div style={{ textAlign: 'center', padding: '40px', color: '#86868b' }}>
               조건에 일치하는 과거 Lot 이력이 없습니다.
             </div>
           ) : (
@@ -273,26 +282,26 @@ export const LotHistorySearchModal: React.FC<Props> = ({ isOpen, onClose, onSele
                         display: 'inline-flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        width: '28px',
-                        height: '28px',
+                        width: '26px',
+                        height: '26px',
                         borderRadius: '6px',
-                        fontWeight: 700,
-                        fontSize: '0.8125rem',
-                        background: sess.silo === 'A' ? 'rgba(59, 130, 246, 0.2)' : sess.silo === 'B' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)',
-                        color: sess.silo === 'A' ? '#60A5FA' : sess.silo === 'B' ? '#34D399' : '#FBBF24'
+                        fontWeight: 600,
+                        fontSize: '0.75rem',
+                        background: sess.silo === 'A' ? 'rgba(0, 102, 204, 0.1)' : sess.silo === 'B' ? 'rgba(52, 199, 89, 0.1)' : 'rgba(255, 149, 0, 0.1)',
+                        color: sess.silo === 'A' ? '#0066cc' : sess.silo === 'B' ? '#28a745' : '#d97706'
                       }}>
                         {sess.silo}
                       </span>
                     </td>
                     <td>
-                      <span style={{ fontWeight: 700, fontFamily: 'monospace', fontSize: '0.9375rem', color: '#F3F4F6' }}>
+                      <span style={{ fontWeight: 600, fontFamily: 'monospace', fontSize: '0.875rem', color: '#1d1d1f' }}>
                         {sess.lot_no}
                       </span>
                     </td>
-                    <td style={{ fontSize: '0.8125rem', color: '#D1D5DB' }}>
+                    <td style={{ fontSize: '0.8125rem', color: '#1d1d1f' }}>
                       {sess.end_time || '-'}
                     </td>
-                    <td style={{ fontSize: '0.8125rem', color: '#9CA3AF' }}>
+                    <td style={{ fontSize: '0.8125rem', color: '#86868b' }}>
                       {sess.duration_str || '-'}
                     </td>
                     <td>
@@ -308,30 +317,27 @@ export const LotHistorySearchModal: React.FC<Props> = ({ isOpen, onClose, onSele
                           onClick={() => handleQuickCopyMIS(sess.lot_no)}
                           className="btn btn-secondary"
                           style={{
-                            padding: '6px 10px',
+                            padding: '5px 12px',
                             fontSize: '0.75rem',
                             gap: '4px',
-                            color: '#34D399',
-                            borderColor: 'rgba(52, 211, 153, 0.3)'
+                            color: '#28a745'
                           }}
                           title="11개 품질분석 수치를 엑셀 행 복사"
                         >
-                          <Download size={13} />
+                          <Download size={12} />
                           MIS 복사
                         </button>
                         <button
-                          onClick={() => {
-                            onSelectLot(sess);
-                          }}
+                          onClick={() => onSelectLot(sess)}
                           className="btn btn-primary"
                           style={{
-                            padding: '6px 10px',
+                            padding: '5px 14px',
                             fontSize: '0.75rem',
                             gap: '4px'
                           }}
                           title="상세 분석표 및 공식 성적서 보기"
                         >
-                          <FileText size={13} />
+                          <FileText size={12} />
                           성적서 조회
                         </button>
                       </div>
@@ -345,19 +351,19 @@ export const LotHistorySearchModal: React.FC<Props> = ({ isOpen, onClose, onSele
 
         {/* Modal Footer */}
         <div style={{
-          padding: '14px 24px',
-          borderTop: '1px solid var(--border-color)',
+          padding: '14px 28px',
+          borderTop: '1px solid #e5e5ea',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          background: 'rgba(17, 24, 39, 0.95)',
+          background: '#ffffff',
           fontSize: '0.8125rem',
-          color: '#9CA3AF'
+          color: '#86868b'
         }}>
           <div>
-            총 <strong>{filtered.length}</strong>건의 Lot 이력 표시 중
+            총 <strong>{filtered.length}</strong>건의 Lot 이력
           </div>
-          <button onClick={onClose} className="btn btn-secondary" style={{ fontSize: '0.8125rem' }}>
+          <button onClick={onClose} className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '6px 16px' }}>
             닫기
           </button>
         </div>

@@ -69,14 +69,12 @@ export function App() {
 
   const fetchData = async () => {
     try {
-      // 1. Fetch status
       const resStatus = await fetch('/api/silos/status');
       if (resStatus.ok) {
         const dataStatus = await resStatus.json();
         setStatus(dataStatus);
       }
 
-      // 2. Fetch latest per Silo (Silo A, B, C 각각 최신 1건씩 총 3건)
       const resHistory = await fetch('/api/silos/latest-by-silo');
       if (resHistory.ok) {
         const dataHistory = await resHistory.json();
@@ -94,11 +92,10 @@ export function App() {
   useEffect(() => {
     fetchData();
     if (!autoRefresh) return;
-    const interval = setInterval(fetchData, 10 * 60 * 1000); // 10분 주기 갱신 (서버 부하 방지)
+    const interval = setInterval(fetchData, 10 * 60 * 1000);
     return () => clearInterval(interval);
   }, [autoRefresh]);
 
-  // Find latest completed sessions for each silo to show in non-active cards
   const getLastCompletedLot = (silo: string) => {
     const found = history.find(h => h.silo === silo && !h.is_active);
     return {
@@ -108,221 +105,289 @@ export function App() {
   };
 
   return (
-    <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '24px 20px' }}>
-      {/* 1. Header Navigation */}
-      <header style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingBottom: '20px',
-        borderBottom: '1px solid var(--border-color)',
-        marginBottom: '24px'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <div style={{
-            width: '44px',
-            height: '44px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #2563EB 0%, #1E40AF 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            boxShadow: '0 4px 14px rgba(37, 99, 235, 0.4)'
-          }}>
-            <Layers size={24} />
-          </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <h1 className="font-display" style={{ fontSize: '1.375rem', fontWeight: 800, letterSpacing: '-0.02em' }}>
-                Samyang Innochem QC
-              </h1>
-              <span className="badge badge-primary" style={{ fontSize: '0.6875rem' }}>v2.0 WebApp</span>
-            </div>
-            <p style={{ fontSize: '0.8125rem', color: '#9CA3AF' }}>
-              AVEVA PI Web API 실시간 Silo 수입 모니터링 및 성적서 자동 채번 시스템
-            </p>
-          </div>
-        </div>
-
-        {/* Header Right Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {/* Tag Monitor Modal Toggle */}
-          <button
-            className="btn btn-secondary"
-            onClick={() => setIsTagModalOpen(true)}
-            style={{ fontSize: '0.8125rem' }}
-          >
-            <Activity size={15} style={{ color: '#60A5FA' }} />
-            DCS 태그 모니터
-          </button>
-
-          {/* Past Lot History Search Modal Toggle */}
-          <button
-            className="btn btn-secondary"
-            onClick={() => setIsHistorySearchModalOpen(true)}
-            style={{ fontSize: '0.8125rem', gap: '6px' }}
-            title="주말/과거 30일간 완료된 모든 Lot 번호 검색 및 MIS 데이터 복사"
-          >
-            <Calendar size={15} style={{ color: '#60A5FA' }} />
-            과거 Lot / MIS 이력
-          </button>
-
-          {/* Audit Log Modal Toggle */}
-          <button
-            className="btn btn-secondary"
-            onClick={() => setIsAuditModalOpen(true)}
-            style={{ fontSize: '0.8125rem', gap: '6px' }}
-            title="협력업체 성적서 발행 이력 및 전일 리포트 메일링 상태 확인"
-          >
-            <FileCheck size={15} style={{ color: '#34D399' }} />
-            발행 감사 이력
-          </button>
-
-          {/* Auto Refresh Toggle */}
-          <button
-            className={`btn ${autoRefresh ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setAutoRefresh(!autoRefresh)}
-            style={{ fontSize: '0.8125rem' }}
-          >
-            <RefreshCw size={14} className={autoRefresh ? 'liquid-wave' : ''} />
-            {autoRefresh ? '자동 갱신 (10m)' : '수동 갱신'}
-          </button>
-
-          {/* Manual Refresh */}
-          <button
-            className="btn btn-secondary"
-            onClick={fetchData}
-            title="새로고침"
-            style={{ padding: '8px 12px' }}
-            disabled={loading}
-          >
-            <RefreshCw size={16} className={loading ? 'liquid-wave' : ''} />
-          </button>
-        </div>
-      </header>
-
-      {/* 2. Top Banner: Current Operation Status */}
-      {status && (
-        <div className="glass-panel" style={{
-          padding: '18px 24px',
-          marginBottom: '24px',
-          background: status.is_feeding
-            ? 'linear-gradient(90deg, rgba(16, 185, 129, 0.12) 0%, rgba(17, 24, 39, 0.8) 100%)'
-            : 'linear-gradient(90deg, rgba(239, 68, 68, 0.12) 0%, rgba(17, 24, 39, 0.8) 100%)',
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {/* 1. Apple Global Nav (Signature pure black with hairline border) */}
+      <nav className="apple-global-nav">
+        <div style={{
+          maxWidth: '1280px',
+          margin: '0 auto',
           display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '20px'
+          alignItems: 'center',
+          gap: '16px'
         }}>
-          {/* Status Left */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {/* Brand Logo & Name */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
-              width: '44px',
-              height: '44px',
-              borderRadius: '10px',
-              background: status.is_feeding ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-              color: status.is_feeding ? '#34D399' : '#F87171',
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
+              background: '#0066cc',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              color: '#ffffff'
             }}>
-              {status.is_feeding ? <ShieldCheck size={26} /> : <Activity size={26} />}
+              <Layers size={18} />
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '0.8125rem', color: '#9CA3AF' }}>공정 상태:</span>
-                <span className="font-display font-mono" style={{
-                  fontWeight: 800,
-                  fontSize: '1.1875rem',
-                  color: status.is_feeding ? '#34D399' : '#F87171'
+                <span className="font-display" style={{ fontSize: '1.0625rem', fontWeight: 600, color: '#ffffff', letterSpacing: '-0.02em' }}>
+                  Samyang Innochem QC
+                </span>
+                <span style={{
+                  fontSize: '0.6875rem',
+                  padding: '2px 8px',
+                  borderRadius: '9999px',
+                  background: 'rgba(255, 255, 255, 0.15)',
+                  color: '#d2d2d7',
+                  fontWeight: 500
                 }}>
-                  {status.is_feeding ? 'FEED (공급 중)' : 'STOP (공급 중단)'}
+                  v2.0
                 </span>
               </div>
-              <p style={{ fontSize: '0.875rem', color: '#E5E7EB', marginTop: '2px' }}>
-                수입 Silo: <strong style={{ color: '#60A5FA' }}>{status.direction_desc}</strong>
-              </p>
             </div>
           </div>
 
-          {/* Status Center: Active Lot Highlight */}
-          {status.active_session && (
-            <div style={{
-              background: 'rgba(31, 41, 55, 0.6)',
-              border: '1px solid #374151',
-              borderRadius: '10px',
-              padding: '8px 18px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '16px'
-            }}>
-              <div>
-                <div style={{ fontSize: '0.6875rem', color: '#9CA3AF', textTransform: 'uppercase' }}>
-                  수입 진행 LOT
-                </div>
-                <div className="font-mono" style={{ fontSize: '1.25rem', fontWeight: 800, color: '#34D399' }}>
-                  {status.active_session.lot_no}
-                </div>
-              </div>
-              <div style={{ height: '28px', width: '1px', background: '#4B5563' }} />
-              <div>
-                <div style={{ fontSize: '0.6875rem', color: '#9CA3AF' }}>개시 일시</div>
-                <div className="font-mono" style={{ fontSize: '0.8125rem', color: '#F3F4F6', fontWeight: 600 }}>
-                  {status.active_session.start_time}
-                </div>
-              </div>
-              <div style={{ height: '28px', width: '1px', background: '#4B5563' }} />
-              <div>
-                <div style={{ fontSize: '0.6875rem', color: '#9CA3AF' }}>경과 시간</div>
-                <div style={{ fontSize: '0.8125rem', color: '#34D399', fontWeight: 600 }}>
-                  {status.active_session.duration_str}
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Right Nav Utilities */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button
+              onClick={() => setIsTagModalOpen(true)}
+              style={{
+                background: 'transparent',
+                color: '#d2d2d7',
+                border: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontSize: '0.75rem',
+                cursor: 'pointer',
+                padding: '6px 10px',
+                borderRadius: '6px'
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = '#ffffff')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = '#d2d2d7')}
+            >
+              <Activity size={14} style={{ color: '#2997ff' }} />
+              DCS 태그 모니터
+            </button>
 
-          {/* Status Right: Clock */}
-          <div style={{ textAlign: 'right', fontSize: '0.75rem', color: '#9CA3AF' }}>
-            <div>DCS 갱신: <strong className="font-mono" style={{ color: '#F3F4F6' }}>{status.server_time_kst}</strong></div>
-            <div style={{ color: '#6B7280', marginTop: '2px' }}>로컬: {lastUpdated}</div>
+            <button
+              onClick={() => setIsHistorySearchModalOpen(true)}
+              style={{
+                background: 'transparent',
+                color: '#d2d2d7',
+                border: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontSize: '0.75rem',
+                cursor: 'pointer',
+                padding: '6px 10px',
+                borderRadius: '6px'
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = '#ffffff')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = '#d2d2d7')}
+              title="과거 30일간 완료된 모든 Lot 번호 검색 및 MIS 데이터 복사"
+            >
+              <Calendar size={14} style={{ color: '#2997ff' }} />
+              과거 Lot / MIS 이력
+            </button>
+
+            <button
+              onClick={() => setIsAuditModalOpen(true)}
+              style={{
+                background: 'transparent',
+                color: '#d2d2d7',
+                border: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontSize: '0.75rem',
+                cursor: 'pointer',
+                padding: '6px 10px',
+                borderRadius: '6px'
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = '#ffffff')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = '#d2d2d7')}
+            >
+              <FileCheck size={14} style={{ color: '#30d158' }} />
+              발행 감사 이력
+            </button>
+
+            <div style={{ width: '1px', height: '16px', background: 'rgba(255, 255, 255, 0.2)', margin: '0 4px' }} />
+
+            <button
+              onClick={() => setAutoRefresh(!autoRefresh)}
+              style={{
+                background: autoRefresh ? 'rgba(0, 102, 204, 0.3)' : 'transparent',
+                color: autoRefresh ? '#2997ff' : '#86868b',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                padding: '4px 10px',
+                borderRadius: '9999px',
+                fontSize: '0.6875rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              <RefreshCw size={11} className={autoRefresh ? 'liquid-wave' : ''} />
+              {autoRefresh ? '자동 갱신 중' : '수동 갱신'}
+            </button>
+
+            <button
+              onClick={fetchData}
+              title="새로고침"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#d2d2d7',
+                padding: '6px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center'
+              }}
+              disabled={loading}
+            >
+              <RefreshCw size={14} className={loading ? 'liquid-wave' : ''} />
+            </button>
           </div>
         </div>
-      )}
+      </nav>
 
-      {/* 3. Silo 3-Card Visual Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-        gap: '24px',
-        marginBottom: '24px'
-      }}>
-        {['A', 'B', 'C'].map(siloKey => {
-          const isActive = status?.incoming_silo === siloKey && status?.is_feeding;
-          const level = status?.levels ? (status.levels as any)[siloKey] || 0.0 : 0.0;
-          const lastInfo = getLastCompletedLot(siloKey);
+      {/* Main Container */}
+      <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '36px 24px', flex: 1, width: '100%' }}>
+        {/* Page Sub-header */}
+        <div style={{ marginBottom: '28px' }}>
+          <h2 className="font-display" style={{ fontSize: '2rem', fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.025em' }}>
+            Silo 수입 현황 및 성적서 자동화
+          </h2>
+          <p style={{ fontSize: '1.0625rem', color: '#86868b', marginTop: '4px', letterSpacing: '-0.015em' }}>
+            AVEVA PI Web API 실시간 데이터 연동 및 삼양 품질 분석 성적서
+          </p>
+        </div>
 
-          return (
-            <SiloCard
-              key={siloKey}
-              siloName={siloKey}
-              level={level}
-              isActive={!!isActive}
-              activeSession={isActive ? status?.active_session : null}
-              lastLotNo={lastInfo.lot_no}
-              lastEndTime={lastInfo.end_time}
-            />
-          );
-        })}
-      </div>
+        {/* 2. Apple Operational Status Banner */}
+        {status && (
+          <div className="glass-panel" style={{
+            padding: '20px 28px',
+            marginBottom: '32px',
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '20px',
+            background: '#ffffff'
+          }}>
+            {/* Left Status */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{
+                width: '44px',
+                height: '44px',
+                borderRadius: '9999px',
+                background: status.is_feeding ? 'rgba(52, 199, 89, 0.12)' : 'rgba(255, 59, 48, 0.12)',
+                color: status.is_feeding ? '#28a745' : '#ff3b30',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {status.is_feeding ? <ShieldCheck size={24} /> : <Activity size={24} />}
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '0.8125rem', color: '#86868b' }}>공정 상태</span>
+                  <span className="font-display" style={{
+                    fontWeight: 600,
+                    fontSize: '1.125rem',
+                    color: status.is_feeding ? '#28a745' : '#ff3b30'
+                  }}>
+                    {status.is_feeding ? 'FEED (공급 중)' : 'STOP (공급 중단)'}
+                  </span>
+                </div>
+                <p style={{ fontSize: '0.875rem', color: '#1d1d1f', marginTop: '2px', fontWeight: 500 }}>
+                  수입 Silo: <strong style={{ color: '#0066cc' }}>{status.direction_desc}</strong>
+                </p>
+              </div>
+            </div>
 
-      {/* 4. Session History Table */}
-      <SessionHistoryTable
-        sessions={history}
-        onSelectSession={handleOpenLotAnalysis}
-        onOpenHistorySearch={() => setIsHistorySearchModalOpen(true)}
-      />
+            {/* Center Status: Active Lot Capsule */}
+            {status.active_session && (
+              <div style={{
+                background: '#f5f5f7',
+                border: '1px solid #e5e5ea',
+                borderRadius: '9999px',
+                padding: '8px 24px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '20px'
+              }}>
+                <div>
+                  <div style={{ fontSize: '0.6875rem', color: '#86868b', fontWeight: 500 }}>
+                    수입 진행 LOT
+                  </div>
+                  <div className="font-mono" style={{ fontSize: '1.0625rem', fontWeight: 600, color: '#1d1d1f' }}>
+                    {status.active_session.lot_no}
+                  </div>
+                </div>
+                <div style={{ height: '24px', width: '1px', background: '#d2d2d7' }} />
+                <div>
+                  <div style={{ fontSize: '0.6875rem', color: '#86868b', fontWeight: 500 }}>개시 일시</div>
+                  <div className="font-mono" style={{ fontSize: '0.8125rem', color: '#1d1d1f' }}>
+                    {status.active_session.start_time}
+                  </div>
+                </div>
+                <div style={{ height: '24px', width: '1px', background: '#d2d2d7' }} />
+                <div>
+                  <div style={{ fontSize: '0.6875rem', color: '#86868b', fontWeight: 500 }}>경과 시간</div>
+                  <div style={{ fontSize: '0.8125rem', color: '#0066cc', fontWeight: 600 }}>
+                    {status.active_session.duration_str}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Right Status: Clock */}
+            <div style={{ textAlign: 'right', fontSize: '0.75rem', color: '#86868b' }}>
+              <div>DCS 갱신: <strong className="font-mono" style={{ color: '#1d1d1f' }}>{status.server_time_kst}</strong></div>
+              <div style={{ marginTop: '2px' }}>로컬: {lastUpdated}</div>
+            </div>
+          </div>
+        )}
+
+        {/* 3. Silo 3-Card Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: '24px',
+          marginBottom: '32px'
+        }}>
+          {['A', 'B', 'C'].map(siloKey => {
+            const isActive = status?.incoming_silo === siloKey && status?.is_feeding;
+            const level = status?.levels ? (status.levels as any)[siloKey] || 0.0 : 0.0;
+            const lastInfo = getLastCompletedLot(siloKey);
+
+            return (
+              <SiloCard
+                key={siloKey}
+                siloName={siloKey}
+                level={level}
+                isActive={!!isActive}
+                activeSession={isActive ? status?.active_session : null}
+                lastLotNo={lastInfo.lot_no}
+                lastEndTime={lastInfo.end_time}
+              />
+            );
+          })}
+        </div>
+
+        {/* 4. Session History Table */}
+        <SessionHistoryTable
+          sessions={history}
+          onSelectSession={handleOpenLotAnalysis}
+          onOpenHistorySearch={() => setIsHistorySearchModalOpen(true)}
+        />
+      </main>
 
       {/* 5. Tag Monitor Modal */}
       <TagMonitorModal
@@ -358,18 +423,25 @@ export function App() {
         }}
       />
 
-      {/* Footer */}
+      {/* Apple Footer (Parchment backdrop, 12px fine-print) */}
       <footer style={{
-        marginTop: '40px',
-        paddingTop: '20px',
-        borderTop: '1px solid #1F2937',
-        display: 'flex',
-        justifyContent: 'space-between',
-        fontSize: '0.8125rem',
-        color: '#6B7280'
+        backgroundColor: '#f5f5f7',
+        borderTop: '1px solid #e5e5ea',
+        padding: '32px 24px',
+        marginTop: 'auto'
       }}>
-        <div>삼양 이노켐 BPA 품질관리 자동화 시스템 (Certification Automation 2.0)</div>
-        <div>AVEVA PI Web API Direct Live Streaming</div>
+        <div style={{
+          maxWidth: '1280px',
+          margin: '0 auto',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          fontSize: '0.75rem',
+          color: '#86868b'
+        }}>
+          <div>삼양 이노켐 BPA 품질관리 자동화 시스템 (Certification Automation 2.0)</div>
+          <div>AVEVA PI Web API Live System</div>
+        </div>
       </footer>
     </div>
   );

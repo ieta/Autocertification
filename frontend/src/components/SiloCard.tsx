@@ -26,43 +26,48 @@ export const SiloCard: React.FC<SiloCardProps> = ({
   lastLotNo,
   lastEndTime
 }) => {
-  // Clamp level between 0 and 100 for SVG display
   const clampedLevel = Math.max(0, Math.min(100, level));
   const fillHeight = 160 * (clampedLevel / 100);
   const fillY = 200 - fillHeight;
 
-  // 통일된 Silo 액체 색상 (단일 브랜드 블루/시안)
-  const liquidColor = isActive ? '#10B981' : '#3B82F6';
+  // Apple Design: Action Blue (#0066cc) vs Apple Green (#34c759)
+  const liquidColor = isActive ? '#34c759' : '#0066cc';
 
   return (
-    <div className={`glass-panel p-6 relative overflow-hidden ${isActive ? 'active-silo-card' : ''}`}>
+    <div
+      className={`apple-card p-6 relative overflow-hidden ${isActive ? 'active-silo-card' : ''}`}
+      style={{
+        padding: '24px',
+        position: 'relative'
+      }}
+    >
       {/* Top Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{
-            width: '38px',
-            height: '38px',
+            width: '36px',
+            height: '36px',
             borderRadius: '10px',
-            background: isActive ? 'rgba(16, 185, 129, 0.2)' : 'rgba(55, 65, 81, 0.4)',
-            color: isActive ? '#34D399' : '#9CA3AF',
+            background: isActive ? 'rgba(52, 199, 89, 0.12)' : 'rgba(0, 102, 204, 0.08)',
+            color: isActive ? '#28a745' : '#0066cc',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center'
           }}>
-            <Database size={20} />
+            <Database size={18} />
           </div>
           <div>
-            <h3 className="font-display" style={{ fontSize: '1.25rem', fontWeight: 700, letterSpacing: '-0.02em' }}>
+            <h3 className="font-display" style={{ fontSize: '1.25rem', fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.02em' }}>
               Silo {siloName}
             </h3>
-            <p style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>BPA 저장조</p>
+            <p style={{ fontSize: '0.75rem', color: '#86868b' }}>BPA 저장조</p>
           </div>
         </div>
 
         {/* Status Badge */}
         {isActive ? (
           <span className="badge badge-success">
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#34D399', display: 'inline-block', animation: 'ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite' }} />
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#28a745', display: 'inline-block' }} />
             수입 중
           </span>
         ) : (
@@ -72,14 +77,14 @@ export const SiloCard: React.FC<SiloCardProps> = ({
 
       {/* Main Content: SVG Silo & Metrics */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '24px', margin: '16px 0' }}>
-        {/* 3D Silo SVG Graphic */}
+        {/* Apple Clean Silo SVG Graphic */}
         <div style={{ width: '90px', height: '160px', position: 'relative', flexShrink: 0 }}>
-          <svg viewBox="0 0 100 200" width="100%" height="100%" style={{ filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.5))' }}>
+          <svg viewBox="0 0 100 200" width="100%" height="100%" style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.06))' }}>
             <defs>
               <linearGradient id={`grad-${siloName}`} x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor={liquidColor} stopOpacity="0.8" />
+                <stop offset="0%" stopColor={liquidColor} stopOpacity="0.85" />
                 <stop offset="50%" stopColor={liquidColor} stopOpacity="1" />
-                <stop offset="100%" stopColor={liquidColor} stopOpacity="0.6" />
+                <stop offset="100%" stopColor={liquidColor} stopOpacity="0.75" />
               </linearGradient>
               <clipPath id={`clip-${siloName}`}>
                 <path d="M 15 35 Q 50 20 85 35 L 85 180 Q 50 195 15 180 Z" />
@@ -89,13 +94,13 @@ export const SiloCard: React.FC<SiloCardProps> = ({
             {/* Silo Outer Container */}
             <path
               d="M 15 35 Q 50 20 85 35 L 85 180 Q 50 195 15 180 Z"
-              fill="#1F2937"
-              stroke="#4B5563"
-              strokeWidth="2.5"
+              fill="#f5f5f7"
+              stroke="#d2d2d7"
+              strokeWidth="2"
             />
             {/* Silo Top Cap */}
-            <ellipse cx="50" cy="35" rx="35" ry="12" fill="#374151" stroke="#6B7280" strokeWidth="1.5" />
-            <ellipse cx="50" cy="35" rx="14" ry="5" fill="#4B5563" />
+            <ellipse cx="50" cy="35" rx="35" ry="12" fill="#e5e5ea" stroke="#d2d2d7" strokeWidth="1.5" />
+            <ellipse cx="50" cy="35" rx="14" ry="5" fill="#c7c7cc" />
 
             {/* Liquid Fill */}
             <g clipPath={`url(#clip-${siloName})`}>
@@ -105,7 +110,7 @@ export const SiloCard: React.FC<SiloCardProps> = ({
                 width="80"
                 height={fillHeight + 20}
                 fill={`url(#grad-${siloName})`}
-                style={{ transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }}
+                style={{ transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)' }}
               />
               {fillHeight > 5 && (
                 <ellipse
@@ -115,87 +120,84 @@ export const SiloCard: React.FC<SiloCardProps> = ({
                   ry="7"
                   fill={liquidColor}
                   opacity="0.9"
-                  style={{ transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }}
+                  style={{ transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)' }}
                 />
               )}
             </g>
 
             {/* Scale Markings */}
-            <line x1="20" y1="70" x2="30" y2="70" stroke="#9CA3AF" strokeWidth="1.5" opacity="0.6" />
-            <line x1="20" y1="110" x2="35" y2="110" stroke="#9CA3AF" strokeWidth="2" opacity="0.8" />
-            <line x1="20" y1="150" x2="30" y2="150" stroke="#9CA3AF" strokeWidth="1.5" opacity="0.6" />
+            <line x1="20" y1="70" x2="30" y2="70" stroke="#86868b" strokeWidth="1.5" opacity="0.4" />
+            <line x1="20" y1="110" x2="35" y2="110" stroke="#86868b" strokeWidth="2" opacity="0.6" />
+            <line x1="20" y1="150" x2="30" y2="150" stroke="#86868b" strokeWidth="1.5" opacity="0.4" />
           </svg>
         </div>
 
         {/* Level Number and Info */}
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: '0.75rem', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>
+          <div style={{ fontSize: '0.75rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '-0.12px', marginBottom: '2px' }}>
             적재율 (Level)
           </div>
-          {/* A, B, C 일관된 통일 색상 (#F9FAFB) */}
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-            <span className="font-display font-mono" style={{ fontSize: '2.5rem', fontWeight: 800, color: '#F9FAFB' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+            <span className="font-display font-mono" style={{ fontSize: '2.5rem', fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.03em' }}>
               {level.toFixed(2)}
             </span>
-            <span style={{ fontSize: '1.25rem', color: '#9CA3AF', fontWeight: 600 }}>%</span>
+            <span style={{ fontSize: '1.25rem', color: '#86868b', fontWeight: 500 }}>%</span>
           </div>
 
           {/* Time & Duration Info */}
           <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
             {isActive && activeSession ? (
               <>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: '#9CA3AF' }}>
-                  <Clock size={13} style={{ color: '#34D399' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: '#86868b' }}>
+                  <Clock size={13} style={{ color: '#28a745' }} />
                   <span>개시:</span>
-                  <span className="font-mono" style={{ color: '#E5E7EB' }}>{activeSession.start_time}</span>
+                  <span className="font-mono" style={{ color: '#1d1d1f', fontWeight: 500 }}>{activeSession.start_time}</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: '#34D399', fontWeight: 600 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: '#28a745', fontWeight: 600 }}>
                   <Activity size={13} />
                   <span>{activeSession.duration_str}</span>
                 </div>
               </>
             ) : lastEndTime ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: '#9CA3AF' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: '#86868b' }}>
                 <Clock size={13} />
                 <span>완료: {lastEndTime}</span>
               </div>
             ) : (
-              <div style={{ fontSize: '0.75rem', color: '#6B7280' }}>이력 없음</div>
+              <div style={{ fontSize: '0.75rem', color: '#86868b' }}>이력 없음</div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Prominent Lot No. Box (과한 뱃지 제거 및 간결화) */}
+      {/* Prominent Lot No. Capsule */}
       <div style={{
         marginTop: '14px',
-        padding: '12px 16px',
-        borderRadius: '10px',
-        background: isActive
-          ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(6, 78, 59, 0.25) 100%)'
-          : 'rgba(31, 41, 55, 0.65)',
-        border: isActive ? '1.5px solid #10B981' : '1px solid #374151',
-        boxShadow: isActive ? '0 0 16px rgba(16, 185, 129, 0.2)' : 'none'
+        padding: '12px 18px',
+        borderRadius: '12px',
+        background: isActive ? 'rgba(52, 199, 89, 0.08)' : '#f5f5f7',
+        border: isActive ? '1px solid rgba(52, 199, 89, 0.3)' : '1px solid #e5e5ea',
+        transition: 'all 0.2s ease'
       }}>
         <div style={{
           fontSize: '0.75rem',
           fontWeight: 600,
-          color: isActive ? '#A7F3D0' : '#9CA3AF',
+          color: isActive ? '#28a745' : '#86868b',
           display: 'flex',
           alignItems: 'center',
           gap: '6px',
           marginBottom: '2px'
         }}>
-          <Tag size={13} style={{ color: isActive ? '#34D399' : '#60A5FA' }} />
+          <Tag size={13} style={{ color: isActive ? '#28a745' : '#0066cc' }} />
           <span>{isActive ? '수입 중 LOT' : '최근 완료 LOT'}</span>
         </div>
         <div
           className="font-mono"
           style={{
-            fontSize: '1.625rem',
-            fontWeight: 800,
-            color: isActive ? '#34D399' : '#F9FAFB',
-            letterSpacing: '0.06em',
+            fontSize: '1.5rem',
+            fontWeight: 600,
+            color: isActive ? '#28a745' : '#1d1d1f',
+            letterSpacing: '-0.02em',
             lineHeight: 1.2
           }}
         >

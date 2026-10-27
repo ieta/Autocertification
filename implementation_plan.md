@@ -419,3 +419,34 @@ flowchart TD
 3. **독립형 실행 파일 패키징**:
    - 프론트엔드 최적화 빌드(`npm run build`) 완료.
    - 단일 실행 파일 [CertificateAutomation.exe](file:///d:/04.%20Antigravity/Certification_Automation%202/CertificateAutomation.exe) 재빌드 및 배포.
+
+
+---
+
+## [v6.0] 2026-10-27: Apple 디자인 시스템 전면 적용 (DESIGN-apple.md 스펙 준수)
+1. **배경 및 디자인 컨셉**:
+   - 기존의 다크 글래스모피즘(Dark Glassmorphism) 테마에서, [DESIGN-apple.md](file:///d:/04.%20Antigravity/Certification_Automation%202/DESIGN-apple.md) 가이드라인에 따른 **Apple 특유의 클린 파치먼트/화이트 캔버스 및 갤러리형 UI**로 전면 전환.
+   - 불필요한 장식성 그라데이션 및 과도한 네온 그림자를 배제하고, 제품과 데이터가 주인공이 되는 정갈한 UI 크롬 구성.
+2. **Apple Design Tokens & Components 적용 상세**:
+   - **Color Palette**:
+     - 상호작용 메인 액센트: 단일 `Action Blue` (`#0066cc`, hover: `#0071e3`, dark link: `#2997ff`).
+     - 배경 캔버스: Apple의 시그니처 `canvas-parchment` (`#f5f5f7`) 및 화이트 카드 (`#ffffff`).
+     - 텍스트/잉크: `ink` (`#1d1d1f`), `ink-muted-48` (`#7a7a7a`), `body-muted` (`#86868b`).
+     - 헤어라인 디바이더: 섬세한 그레이 보더 (`#e5e5ea`, `#d2d2d7`).
+   - **Typography & Cadence**:
+     - Apple SF Pro 계열 특유의 타이트한 문자 간격 (`letterSpacing: -0.022em`, `-0.374px`).
+     - 가독성 높은 폰트 렌더링 (`-webkit-font-smoothing: antialiased`).
+   - **Global Navigation (Pure Black)**:
+     - 최상단 헤더에 Apple 시그니처 퓨어 블랙(`surface-black`, `#000000`) 네비게이션 적용 (`backdrop-filter: saturate(180%) blur(20px)`).
+   - **UI Cards & Tables**:
+     - 카드 반경: `rounded.lg` (18px ~ 20px) 곡률과 은은한 소프트 섀도우 (`0 2px 8px rgba(0,0,0,0.04)`).
+     - 테이블: 화이트 카드 내부에 정갈한 헤어라인 구분선과 `#fbfbfd` 헤더 적용.
+   - **Buttons & Micro-interactions**:
+     - 모든 주요 버튼을 Apple의 표준 **Pill Capsule (`rounded.pill`, 9999px)** 형태로 통일.
+     - 버튼 클릭(Active) 시 Apple 특유의 물리적 햅틱 느낌을 주는 `transform: scale(0.96)` 마이크로 인터랙션 구현.
+   - **Silo 시각화 & 활성 카드**:
+     - 실시간 수입 진행 중인 Silo는 차분하고 선명한 **Apple Green (`#34c759` / `#28a745`)** 소프트 펄스 테두리로 시각적 직관성 확보.
+     - SVG Silo 게이지의 그래픽 텍스처를 클린 화이트/파치먼트 톤에 맞추어 최적화.
+3. **빌드 및 단일 실행 파일 재패키징**:
+   - 프론트엔드 프로덕션 빌드 완료 (`dist/assets/index-CCN8QuJH.css`, `index-F4OkNrc9.js`).
+   - [CertificateAutomation.exe](file:///d:/04.%20Antigravity/Certification_Automation%202/CertificateAutomation.exe) 단일 실행 파일 재빌드 및 배포.
